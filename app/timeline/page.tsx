@@ -81,39 +81,15 @@ export default function TimelinePage() {
   };
 
   return (
-    <main className="min-h-screen bg-slate-900 text-slate-100">
-      {/* Navigation Bar */}
-      <nav className="border-b border-slate-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-center h-16 gap-4">
-            <Link
-              href="/"
-              className="px-4 py-2 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-sm font-semibold text-slate-300 hover:text-sky-300 transition-colors"
-            >
-              Dashboard
-            </Link>
-            <Link
-              href="/timeline"
-              className="px-4 py-2 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-sm font-semibold text-slate-300 hover:text-sky-300 transition-colors"
-            >
-              Timeline
-            </Link>
-            <Link
-              href="/database"
-              className="px-4 py-2 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-sm font-semibold text-slate-300 hover:text-sky-300 transition-colors"
-            >
-              Database
-            </Link>
-          </div>
-        </div>
-      </nav>
+    <main className="min-h-screen bg-[#F3EEEA] text-slate-900">
+      {/* Navigation handled in layout.tsx (Credo Verum) */}
 
       {/* Page Header */}
-      <div className="border-b border-slate-700 bg-slate-800/50">
+      <div className="border-b border-slate-300 bg-slate-400/10">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div>
-            <h2 className="text-3xl font-extrabold">Historical Timeline</h2>
-            <p className="mt-1 text-sm text-slate-400">
+            <h2 className="text-3xl font-extrabold text-slate-900">Historical Timeline</h2>
+            <p className="mt-1 text-sm text-slate-600">
               {sources.length} historical sources spanning key events in Christian history
             </p>
           </div>
@@ -125,7 +101,7 @@ export default function TimelinePage() {
         {/* Main timeline line */}
         <div className="relative">
           {/* Central vertical line */}
-          <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-gradient-to-b from-slate-700 via-sky-500 to-slate-700 transform -translate-x-1/2"></div>
+          <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-gradient-to-b from-slate-300 via-sky-500 to-slate-300 transform -translate-x-1/2"></div>
 
           {/* Timeline items */}
           <div className="space-y-12">
@@ -139,8 +115,8 @@ export default function TimelinePage() {
                   <div
                     className={`absolute left-1/2 top-6 w-5 h-5 rounded-full border-4 transform -translate-x-1/2 z-10 ${
                       isEvent
-                        ? 'bg-slate-900 border-yellow-400 shadow-lg shadow-yellow-400/50'
-                        : 'bg-slate-900 border-sky-400 shadow-lg shadow-sky-400/50'
+                        ? 'bg-white border-yellow-400 shadow-lg shadow-yellow-200'
+                        : 'bg-white border-sky-500 shadow-lg shadow-sky-200'
                     }`}
                   ></div>
 
@@ -150,40 +126,40 @@ export default function TimelinePage() {
                       <div
                         className={`${
                           isEvent
-                            ? 'bg-yellow-500/10 border-yellow-500/30'
-                            : 'bg-slate-800/50 border-slate-700'
+                            ? 'bg-yellow-50 border-yellow-200'
+                            : 'bg-white border-slate-200'
                         } rounded-xl border p-4 pr-6`}
                       >
                         {isEvent ? (
                           <div>
-                            <p className="text-xs font-semibold uppercase tracking-[0.1em] text-yellow-300">
+                            <p className="text-xs font-semibold uppercase tracking-[0.1em] text-yellow-600">
                               {item.period}
                             </p>
-                            <h3 className="mt-2 text-lg font-bold text-yellow-200">
+                            <h3 className="mt-2 text-lg font-bold text-yellow-700">
                               {item.event}
                             </h3>
-                            <p className="mt-2 text-sm text-slate-300">{item.description}</p>
+                            <p className="mt-2 text-sm text-slate-700">{item.description}</p>
                           </div>
                         ) : (
                           <div>
-                            <p className="text-xs font-semibold text-slate-400">
+                            <p className="text-xs font-semibold text-slate-600">
                               {item.source?.date}
                             </p>
-                            <h3 className="mt-1 text-sm font-semibold text-sky-300">
+                            <h3 className="mt-1 text-sm font-semibold text-sky-600">
                               {item.source?.author}
                             </h3>
-                            <p className="mt-1 text-xs text-slate-400">
+                            <p className="mt-1 text-xs text-slate-600">
                               <span className="italic">{item.source?.work}</span>
                               {item.source?.section && ` ${item.source.section}`}
                             </p>
-                            <p className="mt-2 text-xs text-slate-300 line-clamp-3">
+                            <p className="mt-2 text-xs text-slate-700 line-clamp-3">
                               {item.source?.quoteEnglish}
                             </p>
                             <div className="mt-2 flex flex-wrap gap-1">
                               {item.source?.tags.slice(0, 2).map((tag) => (
                                 <span
                                   key={tag}
-                                  className="inline-block rounded-full bg-slate-700/60 px-2 py-0.5 text-[10px] text-slate-300"
+                                  className="inline-block rounded-full bg-slate-100 px-2 py-0.5 text-[10px] text-slate-600"
                                 >
                                   {tag}
                                 </span>
@@ -196,7 +172,7 @@ export default function TimelinePage() {
                                   selectedSource === item.source?.id ? null : item.source?.id || null
                                 )
                               }
-                              className="mt-3 text-[11px] font-semibold text-sky-300 hover:text-sky-200 transition-colors"
+                              className="mt-3 text-[11px] font-semibold text-sky-600 hover:text-sky-700 transition-colors"
                             >
                               {selectedSource === item.source?.id ? 'Hide details' : 'View details'} →
                             </button>
@@ -212,41 +188,41 @@ export default function TimelinePage() {
                     {!isLeft && (
                       <div
                         className={`${
-                          isEvent
-                            ? 'bg-yellow-500/10 border-yellow-500/30'
-                            : 'bg-slate-800/50 border-slate-700'
-                        } rounded-xl border p-4 pl-6`}
-                      >
+                            isEvent
+                              ? 'bg-yellow-50 border-yellow-200'
+                              : 'bg-white border-slate-200'
+                          } rounded-xl border p-4 pl-6`}
+                        >
                         {isEvent ? (
                           <div>
-                            <p className="text-xs font-semibold uppercase tracking-[0.1em] text-yellow-300">
+                              <p className="text-xs font-semibold uppercase tracking-[0.1em] text-yellow-600">
                               {item.period}
                             </p>
-                            <h3 className="mt-2 text-lg font-bold text-yellow-200">
+                              <h3 className="mt-2 text-lg font-bold text-yellow-700">
                               {item.event}
                             </h3>
-                            <p className="mt-2 text-sm text-slate-300">{item.description}</p>
+                              <p className="mt-2 text-sm text-slate-700">{item.description}</p>
                           </div>
                         ) : (
                           <div>
-                            <p className="text-xs font-semibold text-slate-400">
+                              <p className="text-xs font-semibold text-slate-600">
                               {item.source?.date}
                             </p>
-                            <h3 className="mt-1 text-sm font-semibold text-sky-300">
+                              <h3 className="mt-1 text-sm font-semibold text-sky-600">
                               {item.source?.author}
                             </h3>
-                            <p className="mt-1 text-xs text-slate-400">
+                              <p className="mt-1 text-xs text-slate-600">
                               <span className="italic">{item.source?.work}</span>
                               {item.source?.section && ` ${item.source.section}`}
                             </p>
-                            <p className="mt-2 text-xs text-slate-300 line-clamp-3">
+                              <p className="mt-2 text-xs text-slate-700 line-clamp-3">
                               {item.source?.quoteEnglish}
                             </p>
                             <div className="mt-2 flex flex-wrap gap-1 justify-end">
                               {item.source?.tags.slice(0, 2).map((tag) => (
                                 <span
                                   key={tag}
-                                  className="inline-block rounded-full bg-slate-700/60 px-2 py-0.5 text-[10px] text-slate-300"
+                                    className="inline-block rounded-full bg-slate-100 px-2 py-0.5 text-[10px] text-slate-600"
                                 >
                                   {tag}
                                 </span>
@@ -259,7 +235,7 @@ export default function TimelinePage() {
                                   selectedSource === item.source?.id ? null : item.source?.id || null
                                 )
                               }
-                              className="mt-3 text-[11px] font-semibold text-sky-300 hover:text-sky-200 transition-colors"
+                                className="mt-3 text-[11px] font-semibold text-sky-600 hover:text-sky-700 transition-colors"
                             >
                               {selectedSource === item.source?.id ? 'Hide details' : 'View details'} →
                             </button>
@@ -271,51 +247,51 @@ export default function TimelinePage() {
 
                   {/* Expanded details */}
                   {!isEvent && selectedSource === item.source?.id && item.source && (
-                    <div className="mt-4 rounded-xl bg-slate-800 border border-slate-700 p-6">
+                    <div className="mt-4 rounded-xl bg-white border border-slate-200 p-6">
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
-                          <h4 className="text-xs font-semibold uppercase tracking-[0.1em] text-slate-400 mb-2">
+                          <h4 className="text-xs font-semibold uppercase tracking-[0.1em] text-slate-600 mb-2">
                             Author
                           </h4>
-                          <p className="font-semibold text-sky-300">{item.source.author}</p>
+                          <p className="font-semibold text-sky-600">{item.source.author}</p>
                           {item.source.authorLifespan && (
-                            <p className="text-xs text-slate-400 mt-1">{item.source.authorLifespan}</p>
+                            <p className="text-xs text-slate-600 mt-1">{item.source.authorLifespan}</p>
                           )}
-                          <p className="text-xs text-slate-300 mt-2">{item.source.authorDescription}</p>
+                          <p className="text-xs text-slate-700 mt-2">{item.source.authorDescription}</p>
                         </div>
 
                         <div>
-                          <h4 className="text-xs font-semibold uppercase tracking-[0.1em] text-slate-400 mb-2">
+                          <h4 className="text-xs font-semibold uppercase tracking-[0.1em] text-slate-600 mb-2">
                             Work
                           </h4>
                           <p className="font-semibold">
                             <span className="italic">{item.source.work}</span>
                             {item.source.section && ` ${item.source.section}`}
                           </p>
-                          <p className="text-xs text-slate-300 mt-2">{item.source.workDescription}</p>
+                          <p className="text-xs text-slate-700 mt-2">{item.source.workDescription}</p>
                         </div>
 
                         <div>
-                          <h4 className="text-xs font-semibold uppercase tracking-[0.1em] text-slate-400 mb-2">
+                          <h4 className="text-xs font-semibold uppercase tracking-[0.1em] text-slate-600 mb-2">
                             Details
                           </h4>
-                          <p className="text-xs text-slate-300">
+                          <p className="text-xs text-slate-700">
                             <span className="font-semibold">Language:</span> {item.source.language}
                           </p>
-                          <p className="text-xs text-slate-300 mt-1">
+                          <p className="text-xs text-slate-700 mt-1">
                             <span className="font-semibold">Category:</span> {item.source.category}
                           </p>
-                          <p className="text-xs text-slate-300 mt-1">
+                          <p className="text-xs text-slate-700 mt-1">
                             <span className="font-semibold">Type:</span> {item.source.evidenceType}
                           </p>
                         </div>
                       </div>
 
-                      <div className="mt-4 border-t border-slate-700 pt-4">
-                        <h4 className="text-xs font-semibold uppercase tracking-[0.1em] text-slate-400 mb-2">
+                      <div className="mt-4 border-t border-slate-200 pt-4">
+                        <h4 className="text-xs font-semibold uppercase tracking-[0.1em] text-slate-600 mb-2">
                           Summary
                         </h4>
-                        <p className="text-sm text-slate-300">{item.source.passageSummary}</p>
+                        <p className="text-sm text-slate-700">{item.source.passageSummary}</p>
                       </div>
 
                       {item.source.manuscripts.length > 0 && (

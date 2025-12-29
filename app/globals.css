@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
+  --background: #F3EEEA;
   --foreground: #171717;
 }
 
@@ -14,8 +14,8 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #F3EEEA;
+    --foreground: #171717;
   }
 }
 
@@ -23,4 +23,22 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+main {
+  background-color: var(--background) !important;
+}
+
+/* Helper to apply the Cinzel variable font provided by next/font/google */
+.font-cinzel {
+  font-family: var(--font-cinzel) !important;
+}
+
+/* Main CTA button styling (overrides Tailwind bg utilities) */
+.btn-main {
+  background-color: #B0A695 !important;
+  color: #171717 !important;
+}
+.btn-main:hover {
+  background-color: #9A957F !important;
 }
