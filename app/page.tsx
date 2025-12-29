@@ -224,7 +224,7 @@ export default function Home() {
         <h2 className="sr-only">Steps</h2>
 
         <div className="mx-auto max-w-3xl">
-          <div className="overflow-hidden rounded-full bg-gray-200">
+          <div className="overflow-hidden rounded-full bg-gray-200 border-2 border-gray-300">
             <div
               className={`h-2 rounded-full bg-[#B0A695] transition-all`}
               style={{ width: activeStep === 0 ? '25%' : activeStep === 1 ? '50%' : activeStep === 2 ? '75%' : '100%' }}
@@ -234,12 +234,13 @@ export default function Home() {
           <ol className="mt-4 grid grid-cols-1 gap-2 text-sm font-medium text-gray-600 sm:grid-cols-4">
             <li
               onClick={() => setActiveStep(0)}
-              className={`flex cursor-pointer items-center justify-start gap-3 rounded-lg px-3 py-2 ${activeStep === 0 ? 'text-[#B0A695]' : 'text-gray-400'}`}
+              className={`flex cursor-pointer items-center justify-start gap-3 rounded-lg px-3 py-2 ${activeStep === 0 ? 'text-[#776b5d]' : 'text-gray-400'}`}
             >
-              <svg className="h-6 w-6 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+              <svg className="h-6 w-6 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <path d="M10 2l-.117 .007a1 1 0 0 0 -.883 .993v4h-4a1 1 0 0 0 -1 1v4l.007 .117a1 1 0 0 0 .993 .883h4v8a1 1 0 0 0 1 1h4l.117 -.007a1 1 0 0 0 .883 -.993v-8h4a1 1 0 0 0 1 -1v-4l-.007 -.117a1 1 0 0 0 -.993 -.883h-4v-4a1 1 0 0 0 -1 -1h-4z" />
               </svg>
-              <span className="text-xs sm:text-sm">Jesus Christ existed & was crucified</span>
+              <span className="text-xs sm:text-sm">Jesus Christ existed</span>
             </li>
 
             <li
@@ -247,8 +248,8 @@ export default function Home() {
               className={`flex cursor-pointer items-center justify-center gap-3 rounded-lg px-3 py-2 ${activeStep === 1 ? 'text-[#B0A695]' : 'text-gray-400'}`}
             >
               <svg className="h-6 w-6 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 21h14" />
               </svg>
               <span className="text-xs sm:text-sm">Jesus Christ is God</span>
             </li>
@@ -258,9 +259,11 @@ export default function Home() {
               className={`flex cursor-pointer items-center justify-center gap-3 rounded-lg px-3 py-2 ${activeStep === 2 ? 'text-[#B0A695]' : 'text-gray-400'}`}
             >
               <svg className="h-6 w-6 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="m21 2-9.6 9.6" />
+                <circle cx="7.5" cy="15.5" r="5.5" />
               </svg>
-              <span className="text-xs sm:text-sm">Jesus Christ starts his Church</span>
+              <span className="text-xs sm:text-sm">Jesus' Church</span>
             </li>
 
             <li
@@ -268,7 +271,8 @@ export default function Home() {
               className={`flex cursor-pointer items-center justify-end gap-3 rounded-lg px-3 py-2 ${activeStep === 3 ? 'text-[#B0A695]' : 'text-gray-400'}`}
             >
               <svg className="h-6 w-6 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 1.343-3 3m0 0a3 3 0 006 0m-6 0v4h6v-4" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 7v14" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z" />
               </svg>
               <span className="text-xs sm:text-sm">Jesus' Teachings</span>
             </li>
