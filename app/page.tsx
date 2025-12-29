@@ -300,8 +300,21 @@ export default function Home() {
                 Jesus Christ Existed
               </h1>
 
-              <span className="mt-4 inline-flex items-center rounded-full bg-white/90 px-6 py-2 text-sm sm:text-base font-semibold shadow-md">
+              <span className="mt-4 inline-flex items-center gap-2 rounded-full bg-white/90 px-6 py-2 text-sm sm:text-base font-semibold shadow-md">
                 Show Me
+                {!isOpen && (
+                  <svg
+                    className="w-4 h-4 animate-bounce"
+                    fill="none"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                  </svg>
+                )}
               </span>
 
               <span className="mt-3 text-xs font-semibold tracking-[0.25em] uppercase">

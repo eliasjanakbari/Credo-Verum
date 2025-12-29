@@ -19,10 +19,10 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-6">
-            <div className="flex items-center gap-3">
+            <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity cursor-pointer">
               <img src="/icons/Agnus-Dei-Logo.png" alt="Agnus Dei" className="h-7 w-7 object-contain" />
               <span className="font-cinzel text-lg font-semibold text-slate-900">Credo Verum</span>
-            </div>
+            </Link>
 
             <div className="flex items-center gap-6">
               {items.map((item) => {
