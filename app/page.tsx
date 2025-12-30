@@ -231,7 +231,8 @@ export default function Home() {
             />
           </div>
 
-          <ol className="mt-4 grid grid-cols-1 gap-2 text-sm font-medium text-gray-600 sm:grid-cols-4">
+          {/* Desktop view - all steps visible */}
+          <ol className="mt-4 hidden sm:grid grid-cols-4 gap-2 text-sm font-medium text-gray-600">
             <li
               onClick={() => setActiveStep(0)}
               className={`flex cursor-pointer items-center justify-start gap-3 rounded-lg px-3 py-2 ${activeStep === 0 ? 'text-[#776b5d]' : 'text-gray-400'}`}
@@ -277,6 +278,117 @@ export default function Home() {
               <span className="text-xs sm:text-sm">Jesus' Teachings</span>
             </li>
           </ol>
+
+          {/* Mobile view - current step + navigation */}
+          <div className="mt-4 sm:hidden">
+            <div className="flex items-center justify-between gap-3">
+              {/* Left side: Previous button + Current step */}
+              <div className="flex items-center gap-2 flex-1">
+                {/* Previous button - shown when not on first step */}
+                {activeStep > 0 && (
+                  <button
+                    onClick={() => setActiveStep(activeStep - 1)}
+                    className="flex items-center gap-1 px-3 py-2 rounded-lg bg-slate-700/60 hover:bg-slate-700 text-xs font-semibold text-slate-200 transition-colors shrink-0"
+                  >
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                    </svg>
+                    Prev
+                  </button>
+                )}
+
+                {/* Current step */}
+                {activeStep === 0 && (
+                  <div className="flex items-center gap-2 text-[#776b5d]">
+                    <svg className="h-5 w-5 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                      <path d="M10 2l-.117 .007a1 1 0 0 0 -.883 .993v4h-4a1 1 0 0 0 -1 1v4l.007 .117a1 1 0 0 0 .993 .883h4v8a1 1 0 0 0 1 1h4l.117 -.007a1 1 0 0 0 .883 -.993v-8h4a1 1 0 0 0 1 -1v-4l-.007 -.117a1 1 0 0 0 -.993 -.883h-4v-4a1 1 0 0 0 -1 -1h-4z" />
+                    </svg>
+                    <span className="text-xs font-medium">Jesus Christ existed</span>
+                  </div>
+                )}
+                {activeStep === 1 && (
+                  <div className="flex items-center gap-2 text-[#776b5d]">
+                    <svg className="h-5 w-5 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 21h14" />
+                    </svg>
+                    <span className="text-xs font-medium">Jesus Christ is God</span>
+                  </div>
+                )}
+                {activeStep === 2 && (
+                  <div className="flex items-center gap-2 text-[#776b5d]">
+                    <svg className="h-5 w-5 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="m21 2-9.6 9.6" />
+                      <circle cx="7.5" cy="15.5" r="5.5" />
+                    </svg>
+                    <span className="text-xs font-medium">Jesus' Church</span>
+                  </div>
+                )}
+                {activeStep === 3 && (
+                  <div className="flex items-center gap-2 text-[#776b5d]">
+                    <svg className="h-5 w-5 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 7v14" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z" />
+                    </svg>
+                    <span className="text-xs font-medium">Jesus' Teachings</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Right side: Next step preview + Next button */}
+              <div className="flex items-center gap-2 shrink-0">
+
+                {/* Next step preview - shown when not on last step */}
+                {activeStep < 3 && (
+                  <div className="flex items-center gap-2 text-gray-500">
+                    {activeStep === 0 && (
+                      <div className="flex items-center gap-1">
+                        <svg className="h-5 w-5 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 21h14" />
+                        </svg>
+                        <span className="text-xs font-medium">Jesus Christ is God</span>
+                      </div>
+                    )}
+                    {activeStep === 1 && (
+                      <div className="flex items-center gap-1">
+                        <svg className="h-5 w-5 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="m21 2-9.6 9.6" />
+                          <circle cx="7.5" cy="15.5" r="5.5" />
+                        </svg>
+                        <span className="text-xs font-medium">Jesus' Church</span>
+                      </div>
+                    )}
+                    {activeStep === 2 && (
+                      <div className="flex items-center gap-1">
+                        <svg className="h-5 w-5 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 7v14" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z" />
+                        </svg>
+                        <span className="text-xs font-medium">Jesus' Teachings</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Next button - shown when not on last step */}
+                {activeStep < 3 && (
+                  <button
+                    onClick={() => setActiveStep(activeStep + 1)}
+                    className="flex items-center gap-1 px-3 py-2 rounded-lg bg-[#B0A695] hover:bg-[#9a8e7e] text-xs font-semibold text-slate-900 transition-colors"
+                  >
+                    Next
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
