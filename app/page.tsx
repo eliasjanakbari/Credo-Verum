@@ -297,7 +297,7 @@ export default function Home() {
                   </button>
                 )}
 
-                {/* Current step */}
+                {/* Current step - clickable to go to previous step (except on first step) */}
                 {activeStep === 0 && (
                   <div className="flex items-center gap-2 text-[#776b5d]">
                     <svg className="h-5 w-5 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
@@ -308,70 +308,88 @@ export default function Home() {
                   </div>
                 )}
                 {activeStep === 1 && (
-                  <div className="flex items-center gap-2 text-[#776b5d]">
+                  <button
+                    onClick={() => setActiveStep(0)}
+                    className="flex items-center gap-2 text-[#776b5d] cursor-pointer hover:opacity-80 transition-opacity"
+                  >
                     <svg className="h-5 w-5 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z" />
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 21h14" />
                     </svg>
                     <span className="text-xs font-medium">Jesus Christ is God</span>
-                  </div>
+                  </button>
                 )}
                 {activeStep === 2 && (
-                  <div className="flex items-center gap-2 text-[#776b5d]">
+                  <button
+                    onClick={() => setActiveStep(1)}
+                    className="flex items-center gap-2 text-[#776b5d] cursor-pointer hover:opacity-80 transition-opacity"
+                  >
                     <svg className="h-5 w-5 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4" />
                       <path strokeLinecap="round" strokeLinejoin="round" d="m21 2-9.6 9.6" />
                       <circle cx="7.5" cy="15.5" r="5.5" />
                     </svg>
                     <span className="text-xs font-medium">Jesus' Church</span>
-                  </div>
+                  </button>
                 )}
                 {activeStep === 3 && (
-                  <div className="flex items-center gap-2 text-[#776b5d]">
+                  <button
+                    onClick={() => setActiveStep(2)}
+                    className="flex items-center gap-2 text-[#776b5d] cursor-pointer hover:opacity-80 transition-opacity"
+                  >
                     <svg className="h-5 w-5 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 7v14" />
                       <path strokeLinecap="round" strokeLinejoin="round" d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z" />
                     </svg>
                     <span className="text-xs font-medium">Jesus' Teachings</span>
-                  </div>
+                  </button>
                 )}
               </div>
 
               {/* Right side: Next step preview + Next button */}
               <div className="flex items-center gap-2 shrink-0">
 
-                {/* Next step preview - shown when not on last step */}
+                {/* Next step preview - shown when not on last step, clickable */}
                 {activeStep < 3 && (
-                  <div className="flex items-center gap-2 text-gray-500">
+                  <>
                     {activeStep === 0 && (
-                      <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => setActiveStep(1)}
+                        className="flex items-center gap-2 text-gray-500 hover:text-gray-400 cursor-pointer transition-colors"
+                      >
                         <svg className="h-5 w-5 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z" />
                           <path strokeLinecap="round" strokeLinejoin="round" d="M5 21h14" />
                         </svg>
                         <span className="text-xs font-medium">Jesus Christ is God</span>
-                      </div>
+                      </button>
                     )}
                     {activeStep === 1 && (
-                      <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => setActiveStep(2)}
+                        className="flex items-center gap-2 text-gray-500 hover:text-gray-400 cursor-pointer transition-colors"
+                      >
                         <svg className="h-5 w-5 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4" />
                           <path strokeLinecap="round" strokeLinejoin="round" d="m21 2-9.6 9.6" />
                           <circle cx="7.5" cy="15.5" r="5.5" />
                         </svg>
                         <span className="text-xs font-medium">Jesus' Church</span>
-                      </div>
+                      </button>
                     )}
                     {activeStep === 2 && (
-                      <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => setActiveStep(3)}
+                        className="flex items-center gap-2 text-gray-500 hover:text-gray-400 cursor-pointer transition-colors"
+                      >
                         <svg className="h-5 w-5 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M12 7v14" />
                           <path strokeLinecap="round" strokeLinejoin="round" d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z" />
                         </svg>
                         <span className="text-xs font-medium">Jesus' Teachings</span>
-                      </div>
+                      </button>
                     )}
-                  </div>
+                  </>
                 )}
 
                 {/* Next button - shown when not on last step */}
