@@ -32,7 +32,10 @@ export default function Navbar() {
   return (
     <nav className="bg-white border-b border-slate-200 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center h-16 relative">
+          {/* Invisible spacer on left for mobile (matches hamburger width) */}
+          <div className="lg:hidden w-10"></div>
+
           {/* Logo - centered on mobile/tablet, left on desktop */}
           <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity cursor-pointer lg:flex-none flex-1 justify-center lg:justify-start">
             <img src="/icons/Agnus-Dei-Logo.png" alt="Agnus Dei" className="h-7 w-7 object-contain" />
@@ -40,7 +43,7 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-6">
+          <div className="hidden lg:flex items-center gap-6 lg:ml-12">
             {items.map((item) => {
               const active = pathname === item.href;
               return (
@@ -58,7 +61,7 @@ export default function Navbar() {
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden p-2 rounded-md text-slate-600 hover:text-slate-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#776B5D]"
+            className="lg:hidden absolute right-4 p-2 rounded-md text-slate-600 hover:text-slate-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#776B5D]"
             aria-expanded={mobileMenuOpen}
           >
             <span className="sr-only">Open main menu</span>
@@ -80,20 +83,27 @@ export default function Navbar() {
         <div className="lg:hidden fixed inset-0 z-50 bg-white">
           <div className="flex flex-col h-full">
             {/* Header with close button */}
-            <div className="flex items-center justify-center h-16 px-4 border-b border-slate-200 relative">
-              <Link href="/" className="flex items-center gap-3" onClick={() => setMobileMenuOpen(false)}>
-                <img src="/icons/Agnus-Dei-Logo.png" alt="Agnus Dei" className="h-7 w-7 object-contain" />
-                <span className="font-cinzel text-lg font-semibold text-slate-900">Credo Verum</span>
-              </Link>
-              <button
-                type="button"
-                onClick={() => setMobileMenuOpen(false)}
-                className="absolute right-4 p-2 rounded-md text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-              >
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+            <div className="border-b border-slate-200">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex items-center h-16 relative">
+                  {/* Invisible spacer on left (matches hamburger width) */}
+                  <div className="w-10"></div>
+
+                  <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity cursor-pointer flex-1 justify-center" onClick={() => setMobileMenuOpen(false)}>
+                    <img src="/icons/Agnus-Dei-Logo.png" alt="Agnus Dei" className="h-7 w-7 object-contain" />
+                    <span className="font-cinzel text-lg font-semibold text-slate-900">Credo Verum</span>
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="absolute right-4 p-2 rounded-md text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                  >
+                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
             </div>
 
             {/* Menu Items */}
