@@ -282,18 +282,17 @@ export default function Home() {
           {/* Mobile view - current step + navigation */}
           <div className="mt-4 sm:hidden">
             <div className="flex items-center justify-between gap-3">
-              {/* Left side: Previous button + Current step */}
+              {/* Left side: Previous arrow + Current step */}
               <div className="flex items-center gap-2 flex-1">
-                {/* Previous button - shown when not on first step */}
+                {/* Previous arrow - shown when not on first step */}
                 {activeStep > 0 && (
                   <button
                     onClick={() => setActiveStep(activeStep - 1)}
-                    className="flex items-center gap-1 px-3 py-2 rounded-lg bg-slate-700/60 hover:bg-slate-700 text-xs font-semibold text-slate-200 transition-colors shrink-0"
+                    className="flex items-center justify-center w-8 h-8 rounded-lg bg-slate-700/60 hover:bg-slate-700 text-slate-200 transition-colors shrink-0"
                   >
-                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
                     </svg>
-                    Prev
                   </button>
                 )}
 
@@ -346,9 +345,8 @@ export default function Home() {
                 )}
               </div>
 
-              {/* Right side: Next step preview + Next button */}
+              {/* Right side: Next step preview + Next arrow */}
               <div className="flex items-center gap-2 shrink-0">
-
                 {/* Next step preview - shown when not on last step, clickable */}
                 {activeStep < 3 && (
                   <>
@@ -392,14 +390,13 @@ export default function Home() {
                   </>
                 )}
 
-                {/* Next button - shown when not on last step */}
+                {/* Next arrow - shown when not on last step */}
                 {activeStep < 3 && (
                   <button
                     onClick={() => setActiveStep(activeStep + 1)}
-                    className="flex items-center gap-1 px-3 py-2 rounded-lg bg-[#B0A695] hover:bg-[#9a8e7e] text-xs font-semibold text-slate-900 transition-colors"
+                    className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#B0A695] hover:bg-[#9a8e7e] text-slate-900 transition-colors"
                   >
-                    Next
-                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                     </svg>
                   </button>
