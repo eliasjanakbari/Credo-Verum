@@ -17,6 +17,9 @@ export default function Home() {
   const [isMiraclesOpen, setIsMiraclesOpen] = useState(false);
   const [activeMiracleCategory, setActiveMiracleCategory] = useState<MiracleCategory | null>(null);
   const [selectedMiracle, setSelectedMiracle] = useState<Miracle | null>(null);
+  const [expandedMiracles, setExpandedMiracles] = useState<Set<string>>(new Set());
+  const [showMiracleEvidence, setShowMiracleEvidence] = useState(false);
+  const [showOriginalGreek, setShowOriginalGreek] = useState(false);
 
   // Helper function to render manuscript witness section
   const renderManuscriptWitness = (source: EvidenceSource, categoryIndex: number) => {
@@ -205,6 +208,20 @@ export default function Home() {
 
   // Helper function to render miracle card
   const renderMiracle = (miracle: Miracle) => {
+    const isExpanded = expandedMiracles.has(miracle.id);
+
+    const toggleExpanded = () => {
+      setExpandedMiracles(prev => {
+        const newSet = new Set(prev);
+        if (newSet.has(miracle.id)) {
+          newSet.delete(miracle.id);
+        } else {
+          newSet.add(miracle.id);
+        }
+        return newSet;
+      });
+    };
+
     return (
       <div key={miracle.id} className="rounded-3xl border border-slate-700 bg-slate-800/90 px-5 py-4 shadow-lg transition-all duration-300 ease-out">
         <div className="text-xs font-semibold tracking-[0.18em] uppercase text-slate-400 mb-2">
@@ -219,59 +236,84 @@ export default function Home() {
           {miracle.description}
         </p>
 
-        {/* Gospel References Table */}
-        <div className="mb-4 rounded-xl border border-slate-700/80 bg-slate-900/60 overflow-hidden">
-          <div className="px-3 py-2 bg-slate-800/80 border-b border-slate-700/80">
-            <p className="text-[10px] font-semibold tracking-[0.18em] uppercase text-slate-400">
-              Gospel Witnesses
-            </p>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-slate-700/50">
-                  <th className="px-3 py-2 text-left text-xs font-semibold text-slate-400">Gospel</th>
-                  <th className="px-3 py-2 text-left text-xs font-semibold text-slate-400">Reference</th>
-                </tr>
-              </thead>
-              <tbody>
-                {['Matthew', 'Mark', 'Luke', 'John'].map((gospel) => {
-                  const ref = miracle.gospelReferences.find(r => r.gospel === gospel);
-                  return (
-                    <tr key={gospel} className="border-b border-slate-700/30 last:border-0">
-                      <td className="px-3 py-2 font-semibold text-slate-200">{gospel}</td>
-                      <td className="px-3 py-2 text-slate-300">
-                        {ref ? ref.reference : <span className="text-slate-500">—</span>}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Significance */}
-        <div className="rounded-xl border border-slate-700/80 bg-slate-900/40 p-3 mb-3">
-          <p className="text-[10px] font-semibold tracking-[0.18em] uppercase text-slate-400 mb-2">
-            Theological Significance
-          </p>
-          <p className="text-xs text-slate-300 leading-relaxed">
-            {miracle.significance}
-          </p>
-        </div>
-
-        {/* Tags */}
-        <div className="flex flex-wrap gap-2">
-          {miracle.tags.map((tag) => (
-            <span
-              key={tag}
-              className="rounded-full bg-slate-700/80 px-3 py-1 text-[11px] font-medium text-slate-200"
+        {/* Show More/Less Button */}
+        <div className="flex justify-center mb-4">
+          <button
+            type="button"
+            onClick={toggleExpanded}
+            className="flex items-center gap-2 px-5 py-2 rounded-lg border-2 border-[#b0a695] bg-slate-800/60 hover:bg-slate-700 hover:border-[#c5b9a8] text-sm font-semibold text-slate-200 transition-all"
+          >
+            {isExpanded ? 'Show Less' : 'Show More'}
+            <svg
+              className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
             >
-              {tag}
-            </span>
-          ))}
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
         </div>
+
+        {/* Expanded content */}
+        {isExpanded && (
+          <div className="space-y-4">
+            {/* Gospel References Table */}
+            <div className="rounded-xl border border-slate-700/80 bg-slate-900/60 overflow-hidden">
+              <div className="px-3 py-2 bg-slate-800/80 border-b border-slate-700/80">
+                <p className="text-[10px] font-semibold tracking-[0.18em] uppercase text-slate-400">
+                  Gospel Witnesses
+                </p>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-slate-700/50">
+                      <th className="px-3 py-2 text-left text-xs font-semibold text-slate-400">Gospel</th>
+                      <th className="px-3 py-2 text-left text-xs font-semibold text-slate-400">Reference</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {['Matthew', 'Mark', 'Luke', 'John'].map((gospel) => {
+                      const ref = miracle.gospelReferences.find(r => r.gospel === gospel);
+                      return (
+                        <tr key={gospel} className="border-b border-slate-700/30 last:border-0">
+                          <td className="px-3 py-2 font-semibold text-slate-200">{gospel}</td>
+                          <td className="px-3 py-2 text-slate-300">
+                            {ref ? ref.reference : <span className="text-slate-500">—</span>}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Significance */}
+            <div className="rounded-xl border border-slate-700/80 bg-slate-900/40 p-3">
+              <p className="text-[10px] font-semibold tracking-[0.18em] uppercase text-slate-400 mb-2">
+                Theological Significance
+              </p>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                {miracle.significance}
+              </p>
+            </div>
+
+            {/* Tags */}
+            <div className="flex flex-wrap gap-2">
+              {miracle.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="rounded-full bg-slate-700/80 px-3 py-1 text-[11px] font-medium text-slate-200"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     );
   };
@@ -633,6 +675,77 @@ export default function Home() {
       {/* Jesus Christ is God Section (shown only for step 1) */}
       <div className={`flex items-center justify-center min-h-[40vh] mt-4 mb-8 ${activeStep !== 1 ? 'hidden' : ''}`}>
         <div className="w-full max-w-3xl flex flex-col items-center">
+          {/* Scripture Quote */}
+          <div className="w-full max-w-xl mb-6">
+            <blockquote className="text-center text-sm sm:text-base text-slate-900 italic leading-relaxed">
+              {showOriginalGreek
+                ? "Πιστεύετέ μοι ὅτι ἐγὼ ἐν τῷ πατρὶ καὶ ὁ πατὴρ ἐν ἐμοί· εἰ δὲ μή, διὰ τὰ ἔργα αὐτὰ πιστεύετέ μοι."
+                : '"Believe me when I say that I am in the Father and the Father is in me; or at least believe on the evidence of the miracles themselves."'}
+            </blockquote>
+            <p className="mt-3 text-center text-xs sm:text-sm text-slate-700 font-semibold">
+              — John 14:11
+            </p>
+
+            {/* Evidence and Language Toggle Buttons */}
+            <div className="mt-4 flex flex-wrap justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => setShowMiracleEvidence(!showMiracleEvidence)}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#776b5d] hover:bg-[#5d5449] text-sm font-semibold text-white transition-colors"
+              >
+                <span>📜</span>
+                {showMiracleEvidence ? 'Hide Evidence' : 'Show Evidence'}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setShowOriginalGreek(!showOriginalGreek)}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-600 hover:bg-slate-700 text-sm font-semibold text-white transition-colors"
+              >
+                <span>{showOriginalGreek ? '🇬🇧' : '🇬🇷'}</span>
+                {showOriginalGreek ? 'View English' : 'View Original Greek'}
+              </button>
+            </div>
+
+            {/* Evidence Section */}
+            {showMiracleEvidence && (
+              <div className="mt-6 rounded-2xl border border-slate-300 bg-slate-50 p-4">
+                <p className="text-xs font-semibold tracking-[0.18em] uppercase text-slate-600 mb-3">
+                  Manuscript Witness
+                </p>
+
+                <button
+                  type="button"
+                  onClick={() => setFullscreenImage('/evidence/Vat.gr.1209_1375_pa_1371_m.jpg')}
+                  className="group block w-full text-left hover:opacity-90 transition-opacity"
+                >
+                  <div className="overflow-hidden rounded-xl border border-slate-300 cursor-pointer">
+                    <img
+                      src="/evidence/Vat.gr.1209_1375_pa_1371_m.jpg"
+                      alt="John 14:11 manuscript from Vatican Library"
+                      className="w-full max-h-72 object-contain transition-transform duration-300 group-hover:scale-105"
+                    />
+                  </div>
+                  <p className="mt-2 text-xs text-slate-600 text-center">
+                    Codex Vaticanus Graecus 1209, page 1371, Vatican Library (4th century) – click to view full folio
+                  </p>
+                </button>
+
+                <div className="mt-3 flex justify-center">
+                  <a
+                    href="https://digi.vatlib.it/view/MSS_Vat.gr.1209"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 text-sm font-semibold text-amber-800 transition-colors"
+                  >
+                    <span>📜</span>
+                    View Digitized Manuscript
+                  </a>
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Main CTA card */}
           <button
             type="button"
