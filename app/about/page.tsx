@@ -134,6 +134,15 @@ export default function AboutPage() {
               </p>
             </div>
 
+            <div className="bg-slate-50 rounded-xl p-6 border border-slate-200">
+              <h3 className="text-sm font-semibold uppercase tracking-[0.1em] text-slate-600 mb-3">
+                A Word to Fellow Christians
+              </h3>
+              <p className="text-sm text-slate-700 leading-relaxed">
+                To our Protestant brothers and sisters in Christ we invite you to consider the fullness of the faith as it was received, preserved, and handed on from the apostles. Christ did not leave us a book alone, but a Church—founded on the apostles and entrusted with teaching, sanctifying, and governing in His name. Our aim is not division, but unity in truth. We encourage all Christians to prayerfully examine the historical and apostolic foundations of the Church Christ established, and to submit fully to Jesus Christ and the authority He gave to His Church.
+              </p>
+            </div>
+
             <div className="border-l-4 border-[#776b5d] bg-slate-50 rounded-r-xl p-6">
               <blockquote className="text-base text-slate-700 italic leading-relaxed">
                 "Go therefore and make disciples of all nations…"

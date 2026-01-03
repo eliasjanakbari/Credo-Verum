@@ -51,6 +51,7 @@ export default function RootLayout({
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${cinzel.variable} antialiased`}
+        suppressHydrationWarning
       >
         <Navbar />
         {children}
