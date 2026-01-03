@@ -216,11 +216,11 @@ export default function Home() {
   const christianSources = sources.filter((s) => s.category === 'Christian');
 
   return (
-    <main className="min-h-screen bg-slate-900 px-4">
-      
+    <main className="bg-slate-900 px-4">
+
 
       {/* Steps / Stepper (centered, constrained width) */}
-      <div className="my-6">
+      <div className="pt-4 pb-2">
         <h2 className="sr-only">Steps</h2>
 
         <div className="mx-auto max-w-3xl">
@@ -396,7 +396,7 @@ export default function Home() {
       </div>
 
       {/* Main Content (shown only for step 0) */}
-      <div className={`flex items-center justify-center min-h-[40vh] my-8 ${activeStep !== 0 ? 'hidden' : ''}`}>
+      <div className={`flex items-center justify-center min-h-[40vh] mt-4 mb-8 ${activeStep !== 0 ? 'hidden' : ''}`}>
         <div className="w-full max-w-3xl flex flex-col items-center">
           {/* Main CTA card */}
           <button
