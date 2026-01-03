@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { sources, EvidenceSource } from '@/data/sources';
+import { miracles, Miracle, MiracleCategory } from '@/data/miracles';
 
 export default function Home() {
   const [isOpen, setIsOpen] = useState(false);
@@ -11,6 +12,11 @@ export default function Home() {
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
   const [showOriginalLanguage, setShowOriginalLanguage] = useState(false);
   const [activeStep, setActiveStep] = useState<number>(0);
+
+  // Miracle section states
+  const [isMiraclesOpen, setIsMiraclesOpen] = useState(false);
+  const [activeMiracleCategory, setActiveMiracleCategory] = useState<MiracleCategory | null>(null);
+  const [selectedMiracle, setSelectedMiracle] = useState<Miracle | null>(null);
 
   // Helper function to render manuscript witness section
   const renderManuscriptWitness = (source: EvidenceSource, categoryIndex: number) => {
@@ -197,6 +203,79 @@ export default function Home() {
     );
   };
 
+  // Helper function to render miracle card
+  const renderMiracle = (miracle: Miracle) => {
+    return (
+      <div key={miracle.id} className="rounded-3xl border border-slate-700 bg-slate-800/90 px-5 py-4 shadow-lg transition-all duration-300 ease-out">
+        <div className="text-xs font-semibold tracking-[0.18em] uppercase text-slate-400 mb-2">
+          {miracle.category} Miracle
+        </div>
+
+        <h3 className="text-lg font-bold text-slate-100 mb-3">
+          {miracle.name}
+        </h3>
+
+        <p className="text-sm text-slate-300 mb-4 leading-relaxed">
+          {miracle.description}
+        </p>
+
+        {/* Gospel References Table */}
+        <div className="mb-4 rounded-xl border border-slate-700/80 bg-slate-900/60 overflow-hidden">
+          <div className="px-3 py-2 bg-slate-800/80 border-b border-slate-700/80">
+            <p className="text-[10px] font-semibold tracking-[0.18em] uppercase text-slate-400">
+              Gospel Witnesses
+            </p>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-slate-700/50">
+                  <th className="px-3 py-2 text-left text-xs font-semibold text-slate-400">Gospel</th>
+                  <th className="px-3 py-2 text-left text-xs font-semibold text-slate-400">Reference</th>
+                </tr>
+              </thead>
+              <tbody>
+                {['Matthew', 'Mark', 'Luke', 'John'].map((gospel) => {
+                  const ref = miracle.gospelReferences.find(r => r.gospel === gospel);
+                  return (
+                    <tr key={gospel} className="border-b border-slate-700/30 last:border-0">
+                      <td className="px-3 py-2 font-semibold text-slate-200">{gospel}</td>
+                      <td className="px-3 py-2 text-slate-300">
+                        {ref ? ref.reference : <span className="text-slate-500">—</span>}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Significance */}
+        <div className="rounded-xl border border-slate-700/80 bg-slate-900/40 p-3 mb-3">
+          <p className="text-[10px] font-semibold tracking-[0.18em] uppercase text-slate-400 mb-2">
+            Theological Significance
+          </p>
+          <p className="text-xs text-slate-300 leading-relaxed">
+            {miracle.significance}
+          </p>
+        </div>
+
+        {/* Tags */}
+        <div className="flex flex-wrap gap-2">
+          {miracle.tags.map((tag) => (
+            <span
+              key={tag}
+              className="rounded-full bg-slate-700/80 px-3 py-1 text-[11px] font-medium text-slate-200"
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   // Derived counts from the data model
   const categoryCounts = sources.reduce(
     (acc, source) => {
@@ -214,6 +293,20 @@ export default function Home() {
   const primaryRomanSource = romanSources[0];
   const jewishSources = sources.filter((s) => s.category === 'Jewish');
   const christianSources = sources.filter((s) => s.category === 'Christian');
+
+  // Miracle counts by category
+  const miracleCategoryCounts = miracles.reduce(
+    (acc, miracle) => {
+      acc[miracle.category] = (acc[miracle.category] ?? 0) + 1;
+      return acc;
+    },
+    {} as Record<MiracleCategory, number>
+  );
+
+  const natureMiracles = miracles.filter((m) => m.category === 'Nature');
+  const healingMiracles = miracles.filter((m) => m.category === 'Healing');
+  const resurrectionMiracles = miracles.filter((m) => m.category === 'Resurrection');
+  const demonMiracles = miracles.filter((m) => m.category === 'Casting out demons');
 
   return (
     <main className="bg-slate-900 px-4">
@@ -531,6 +624,176 @@ export default function Home() {
             {activeCategory === 'Christian' && christianSources.length > 0 && (
               <div className="mt-5 space-y-4">
                 {christianSources.map((source, idx) => renderSourceCard(source, idx, 'Christian'))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Jesus Christ is God Section (shown only for step 1) */}
+      <div className={`flex items-center justify-center min-h-[40vh] mt-4 mb-8 ${activeStep !== 1 ? 'hidden' : ''}`}>
+        <div className="w-full max-w-3xl flex flex-col items-center">
+          {/* Main CTA card */}
+          <button
+            type="button"
+            onClick={() => {
+              setIsMiraclesOpen((prev) => !prev);
+              if (isMiraclesOpen) {
+                setActiveMiracleCategory(null);
+                setSelectedMiracle(null);
+              }
+            }}
+            aria-expanded={isMiraclesOpen}
+            className="w-full max-w-xl rounded-3xl btn-main hover:opacity-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#776B5D]/30 shadow-xl transition-transform duration-200 ease-out active:scale-95"
+          >
+            <div className="flex flex-col items-center px-8 py-6 text-slate-900">
+              <span className="text-xs font-semibold tracking-[0.2em] uppercase">
+                Divine Evidence
+              </span>
+              <h1 className="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-center">
+                Jesus Christ is God
+              </h1>
+
+              <span className="mt-4 inline-flex items-center gap-2 rounded-full bg-white/90 px-6 py-2 text-sm sm:text-base font-semibold shadow-md">
+                Show Miracles
+                {!isMiraclesOpen && (
+                  <svg
+                    className="w-4 h-4 animate-bounce"
+                    fill="none"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                  </svg>
+                )}
+              </span>
+
+              <span className="mt-3 text-xs font-semibold tracking-[0.25em] uppercase">
+                {miracles.length} Miracles
+              </span>
+            </div>
+          </button>
+
+          {/* Animated reveal section */}
+          <div
+            className={`mt-6 w-full max-w-xl transition-all duration-300 ease-out ${
+              isMiraclesOpen ? 'opacity-100 translate-y-0' : 'max-h-0 opacity-0 -translate-y-2'
+            }`}
+          >
+            <div className="grid grid-cols-4 gap-3">
+              {/* Nature miracles */}
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveMiracleCategory((prev) => (prev === 'Nature' ? null : 'Nature'));
+                  setSelectedMiracle(null);
+                }}
+                className={`flex flex-col items-center rounded-3xl border px-4 py-4 text-center shadow-lg transition-colors ${
+                  activeMiracleCategory === 'Nature'
+                    ? 'border-[#b0a695] bg-slate-800'
+                    : 'border-[#776b5d] bg-slate-800/80 hover:border-[#b0a695]'
+                }`}
+              >
+                <span className="text-[10px] font-semibold tracking-[0.2em] uppercase text-slate-300">
+                  Nature
+                </span>
+                <span className="mt-2 text-2xl font-extrabold text-white">
+                  {miracleCategoryCounts['Nature'] ?? 0}
+                </span>
+              </button>
+
+              {/* Healing miracles */}
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveMiracleCategory((prev) => (prev === 'Healing' ? null : 'Healing'));
+                  setSelectedMiracle(null);
+                }}
+                className={`flex flex-col items-center rounded-3xl border px-4 py-4 text-center shadow-lg transition-colors ${
+                  activeMiracleCategory === 'Healing'
+                    ? 'border-[#b0a695] bg-slate-800'
+                    : 'border-[#776b5d] bg-slate-800/80 hover:border-[#b0a695]'
+                }`}
+              >
+                <span className="text-[10px] font-semibold tracking-[0.2em] uppercase text-slate-300">
+                  Healing
+                </span>
+                <span className="mt-2 text-2xl font-extrabold text-white">
+                  {miracleCategoryCounts['Healing'] ?? 0}
+                </span>
+              </button>
+
+              {/* Resurrection miracles */}
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveMiracleCategory((prev) => (prev === 'Resurrection' ? null : 'Resurrection'));
+                  setSelectedMiracle(null);
+                }}
+                className={`flex flex-col items-center rounded-3xl border px-4 py-4 text-center shadow-lg transition-colors ${
+                  activeMiracleCategory === 'Resurrection'
+                    ? 'border-[#b0a695] bg-slate-800'
+                    : 'border-[#776b5d] bg-slate-800/80 hover:border-[#b0a695]'
+                }`}
+              >
+                <span className="text-[10px] font-semibold tracking-[0.2em] uppercase text-slate-300">
+                  Resurrection
+                </span>
+                <span className="mt-2 text-2xl font-extrabold text-white">
+                  {miracleCategoryCounts['Resurrection'] ?? 0}
+                </span>
+              </button>
+
+              {/* Casting out demons miracles */}
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveMiracleCategory((prev) => (prev === 'Casting out demons' ? null : 'Casting out demons'));
+                  setSelectedMiracle(null);
+                }}
+                className={`flex flex-col items-center rounded-3xl border px-4 py-4 text-center shadow-lg transition-colors ${
+                  activeMiracleCategory === 'Casting out demons'
+                    ? 'border-[#b0a695] bg-slate-800'
+                    : 'border-[#776b5d] bg-slate-800/80 hover:border-[#b0a695]'
+                }`}
+              >
+                <span className="text-[10px] font-semibold tracking-[0.2em] uppercase text-slate-300">
+                  Demons
+                </span>
+                <span className="mt-2 text-2xl font-extrabold text-white">
+                  {miracleCategoryCounts['Casting out demons'] ?? 0}
+                </span>
+              </button>
+            </div>
+
+            {/* Nature miracles preview */}
+            {activeMiracleCategory === 'Nature' && natureMiracles.length > 0 && (
+              <div className="mt-5 space-y-4">
+                {natureMiracles.map((miracle) => renderMiracle(miracle))}
+              </div>
+            )}
+
+            {/* Healing miracles preview */}
+            {activeMiracleCategory === 'Healing' && healingMiracles.length > 0 && (
+              <div className="mt-5 space-y-4">
+                {healingMiracles.map((miracle) => renderMiracle(miracle))}
+              </div>
+            )}
+
+            {/* Resurrection miracles preview */}
+            {activeMiracleCategory === 'Resurrection' && resurrectionMiracles.length > 0 && (
+              <div className="mt-5 space-y-4">
+                {resurrectionMiracles.map((miracle) => renderMiracle(miracle))}
+              </div>
+            )}
+
+            {/* Casting out demons miracles preview */}
+            {activeMiracleCategory === 'Casting out demons' && demonMiracles.length > 0 && (
+              <div className="mt-5 space-y-4">
+                {demonMiracles.map((miracle) => renderMiracle(miracle))}
               </div>
             )}
           </div>
