@@ -1,8 +1,13 @@
 'use client';
 
+import { useState } from 'react';
 import Image from 'next/image';
 
 export default function AboutPage() {
+  const [showEvidence, setShowEvidence] = useState(false);
+  const [showOriginalGreek, setShowOriginalGreek] = useState(false);
+  const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
+
   return (
     <main className="min-h-screen bg-[#F3EEEA]">
       {/* Main Content */}
@@ -19,11 +24,72 @@ export default function AboutPage() {
               </p>
               <div className="mt-4 pt-4 border-t border-slate-200">
                 <blockquote className="text-base text-slate-700 italic">
-                  "I am the way, and the truth, and the life."
+                  {showOriginalGreek
+                    ? "ΕΓΩ ΕΙ ΜΙ Η Ο ΔΟC ΚΑΙ Η ΑΛΗΘΕΙΑ ΚΑΙ Η ΖΩΗ"
+                    : '"I am the way, and the truth, and the life."'}
                 </blockquote>
                 <p className="mt-1 text-sm text-slate-600">
                   — John 14:6
                 </p>
+
+                {/* Evidence Toggle Buttons */}
+                <div className="mt-4 flex flex-wrap justify-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowEvidence(!showEvidence)}
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#776b5d] hover:bg-[#5d5449] text-sm font-semibold text-white transition-colors"
+                  >
+                    <span>📜</span>
+                    {showEvidence ? 'Hide Evidence' : 'Show Evidence'}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setShowOriginalGreek(!showOriginalGreek)}
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-600 hover:bg-slate-700 text-sm font-semibold text-white transition-colors"
+                  >
+                    <span>{showOriginalGreek ? '🇬🇧' : '🇬🇷'}</span>
+                    {showOriginalGreek ? 'View English' : 'View Original Greek'}
+                  </button>
+                </div>
+
+                {/* Evidence Section */}
+                {showEvidence && (
+                  <div className="mt-6 rounded-2xl border border-slate-300 bg-slate-50 p-4">
+                    <p className="text-xs font-semibold tracking-[0.18em] uppercase text-slate-600 mb-3">
+                      Manuscript Witness
+                    </p>
+
+                    <button
+                      type="button"
+                      onClick={() => setFullscreenImage('/evidence/Vat.gr.1209_1375_pa_1371_m.jpg')}
+                      className="group block w-full text-left hover:opacity-90 transition-opacity"
+                    >
+                      <div className="overflow-hidden rounded-xl border border-slate-300 cursor-pointer">
+                        <img
+                          src="/evidence/Vat.gr.1209_1375_pa_1371_m.jpg"
+                          alt="John 14:6 manuscript from Vatican Library"
+                          className="w-full max-h-72 object-contain transition-transform duration-300 group-hover:scale-105"
+                        />
+                      </div>
+                      <p className="mt-2 text-xs text-slate-600 text-center">
+                        Codex Vaticanus Graecus 1209, page 1371, Vatican Library (4th century) – click to view full folio
+                      </p>
+                    </button>
+
+                    <div className="mt-3 flex justify-center">
+                      <a
+                        href="https://digi.vatlib.it/view/MSS_Vat.gr.1209"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 text-sm font-semibold text-amber-800 transition-colors"
+                      >
+                        <span>📜</span>
+                        View Digitized Manuscript
+                      </a>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -82,6 +148,30 @@ export default function AboutPage() {
           </div>
         </div>
       </div>
+
+      {/* Fullscreen Image Modal */}
+      {fullscreenImage && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 px-4"
+          onClick={() => setFullscreenImage(null)}
+        >
+          <button
+            type="button"
+            className="absolute top-4 right-4 text-white hover:text-slate-300 text-2xl font-bold z-10"
+            onClick={() => setFullscreenImage(null)}
+            aria-label="Close fullscreen image"
+          >
+            ×
+          </button>
+          <div className="max-w-4xl max-h-[90vh] flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
+            <img
+              src={fullscreenImage}
+              alt="Fullscreen manuscript view"
+              className="max-w-full max-h-[90vh] object-contain rounded-lg"
+            />
+          </div>
+        </div>
+      )}
     </main>
   );
 }
