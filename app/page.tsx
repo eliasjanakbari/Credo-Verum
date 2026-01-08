@@ -10,7 +10,7 @@ export default function Home() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [showMobileDetails, setShowMobileDetails] = useState(false);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
-  const [showOriginalLanguage, setShowOriginalLanguage] = useState(false);
+  const [showOriginalLanguage, setShowOriginalLanguage] = useState<Record<string, boolean>>({});
   const [activeStep, setActiveStep] = useState<number>(0);
 
   // Miracle section states
@@ -136,20 +136,20 @@ export default function Home() {
 
         {/* Quote */}
         <p className="mt-3 text-sm text-slate-100">
-          "{showOriginalLanguage ? source.quoteOriginal : source.quoteEnglish}"
+          "{showOriginalLanguage[source.id] ? source.quoteOriginal : source.quoteEnglish}"
         </p>
 
         {/* View original language button */}
         <div className="mt-4">
           <button
             type="button"
-            onClick={() => setShowOriginalLanguage(!showOriginalLanguage)}
+            onClick={() => setShowOriginalLanguage(prev => ({ ...prev, [source.id]: !prev[source.id] }))}
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-700/60 hover:bg-slate-700 text-sm font-semibold text-slate-200 transition-colors"
           >
             <span className="text-lg">
-              {showOriginalLanguage ? '🇬🇧' : source.language === 'Latin' ? '🇮🇹' : source.language === 'Greek' ? '🇬🇷' : '🌐'}
+              {showOriginalLanguage[source.id] ? '🇬🇧' : source.language === 'Latin' ? '🇮🇹' : source.language === 'Greek' ? '🇬🇷' : '🌐'}
             </span>
-            {showOriginalLanguage ? `View English` : `View Original (${source.language})`}
+            {showOriginalLanguage[source.id] ? `View English` : `View Original (${source.language})`}
           </button>
         </div>
 
