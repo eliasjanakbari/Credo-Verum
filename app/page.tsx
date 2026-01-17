@@ -1,11 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { sources, EvidenceSource } from '@/data/sources';
-import { miracles, Miracle, MiracleCategory } from '@/data/miracles';
+import type { EvidenceSource } from '@/data/sources';
+import type { Miracle, MiracleCategory } from '@/data/miracles';
 
 export default function Home() {
+  // Data state
+  const [sources, setSources] = useState<EvidenceSource[]>([]);
+  const [miracles, setMiracles] = useState<Miracle[]>([]);
+  const [loading, setLoading] = useState(true);
+
   const [isOpen, setIsOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [showMobileDetails, setShowMobileDetails] = useState(false);
@@ -20,6 +25,30 @@ export default function Home() {
   const [expandedMiracles, setExpandedMiracles] = useState<Set<string>>(new Set());
   const [showMiracleEvidence, setShowMiracleEvidence] = useState(false);
   const [showOriginalGreek, setShowOriginalGreek] = useState(false);
+
+  // Fetch data from API
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [sourcesRes, miraclesRes] = await Promise.all([
+          fetch('/api/sources'),
+          fetch('/api/miracles')
+        ]);
+
+        const sourcesData = await sourcesRes.json();
+        const miraclesData = await miraclesRes.json();
+
+        setSources(sourcesData);
+        setMiracles(miraclesData);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+  }, []);
 
   // Helper function to render manuscript witness section
   const renderManuscriptWitness = (source: EvidenceSource, categoryIndex: number) => {
@@ -349,6 +378,14 @@ export default function Home() {
   const healingMiracles = miracles.filter((m) => m.category === 'Healing');
   const resurrectionMiracles = miracles.filter((m) => m.category === 'Resurrection');
   const demonMiracles = miracles.filter((m) => m.category === 'Casting out demons');
+
+  if (loading) {
+    return (
+      <main className="bg-slate-900 px-4 min-h-screen flex items-center justify-center">
+        <div className="text-slate-300 text-lg">Loading...</div>
+      </main>
+    );
+  }
 
   return (
     <main className="bg-slate-900 px-4">

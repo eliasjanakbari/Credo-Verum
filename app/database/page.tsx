@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
-import { sources, EvidenceCategory } from '@/data/sources';
+import type { EvidenceSource, EvidenceCategory } from '@/data/sources';
 
 // Category configuration for consistent styling
 const categoryConfig: Record<EvidenceCategory, { bg: string; text: string }> = {
@@ -12,14 +12,33 @@ const categoryConfig: Record<EvidenceCategory, { bg: string; text: string }> = {
 };
 
 export default function DatabasePage() {
+  const [sources, setSources] = useState<EvidenceSource[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'author' | 'date' | 'category'>('author');
 
+  // Fetch data from API
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const res = await fetch('/api/sources');
+        const data = await res.json();
+        setSources(data);
+      } catch (error) {
+        console.error('Error fetching sources:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+  }, []);
+
   // Get unique categories from the data
   const availableCategories = useMemo(() => {
     return Array.from(new Set(sources.map((s) => s.category))).sort();
-  }, []);
+  }, [sources]);
 
   const filteredAndSortedSources = useMemo(() => {
     let filtered = sources;

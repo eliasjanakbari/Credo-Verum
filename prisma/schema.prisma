@@ -1,0 +1,152 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+// Authors table
+model Authors {
+  AuthorID          String              @id @default(cuid()) @map("AuthorID")
+  Name              String
+  Lifespan          String?
+  Bio               String?             @db.NVarChar(Max)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  works             Work[]
+  passageConnections PassageConnection[]
+
+  @@map("Authors")
+}
+
+// Work table
+model Work {
+  WorkID            String              @id @default(cuid()) @map("WorkID")
+  AuthorID          String
+  Title             String
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  author            Authors             @relation(fields: [AuthorID], references: [AuthorID], onDelete: Cascade)
+  evidencePassages  EvidencePassage[]
+  manuscriptWorks   ManuscriptWork[]
+
+  @@map("Work")
+}
+
+// Manuscript table
+model Manuscript {
+  ManuscriptID      String              @id @default(cuid()) @map("ManuscriptID")
+  Title             String
+  Library           String              @db.NVarChar(Max)
+  Shelfmark         String
+  Date              String
+  DigitisedURL      String?             @db.NVarChar(Max)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  manuscriptWorks   ManuscriptWork[]
+  manuscriptWitnesses ManuscriptWitness[]
+
+  @@map("Manuscript")
+}
+
+// ManuscriptWork junction table
+model ManuscriptWork {
+  ManuscriptID      String
+  WorkID            String
+
+  manuscript        Manuscript          @relation(fields: [ManuscriptID], references: [ManuscriptID], onDelete: Cascade)
+  work              Work                @relation(fields: [WorkID], references: [WorkID], onDelete: Cascade)
+
+  @@id([ManuscriptID, WorkID])
+  @@map("ManuscriptWork")
+}
+
+// Evidence Passage table
+model EvidencePassage {
+  EvidencePassageID String              @id @default(cuid()) @map("EvidencePassageID")
+  EvidenceID        String
+  WorkID            String
+  PassageText       String              @db.NVarChar(Max) @map("Passage/Text")
+  OriginalLanguage  String?
+  OriginalTranslationText String?       @db.NVarChar(Max)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  evidence          Evidence            @relation(fields: [EvidenceID], references: [EvidenceID], onDelete: Cascade)
+  work              Work                @relation(fields: [WorkID], references: [WorkID], onDelete: Cascade)
+  manuscriptWitnesses ManuscriptWitness[]
+
+  @@map("Evidence Passage")
+}
+
+// ManuscriptWitness table
+model ManuscriptWitness {
+  WitnessID         String              @id @default(cuid()) @map("WitnessID")
+  EvidencePassageID String
+  ManuscriptID      String
+
+  evidencePassage   EvidencePassage     @relation(fields: [EvidencePassageID], references: [EvidencePassageID], onDelete: Cascade)
+  manuscript        Manuscript          @relation(fields: [ManuscriptID], references: [ManuscriptID], onDelete: Cascade)
+
+  @@map("Manuscript Witness")
+}
+
+// Evidence table
+model Evidence {
+  EvidenceID        String              @id @default(cuid()) @map("EvidenceID")
+  Title             String
+  EvidenceType      String
+  Category          String
+  Summary           String?             @db.NVarChar(Max)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  evidencePassages  EvidencePassage[]
+  existence         Existence?
+
+  @@map("Evidence")
+}
+
+// Existence table (1:1 with Evidence)
+model Existence {
+  EvidenceID        String              @id @map("EvidenceID")
+
+  evidence          Evidence            @relation(fields: [EvidenceID], references: [EvidenceID], onDelete: Cascade)
+
+  @@map("Existence")
+}
+
+// Miracles table
+model Miracles {
+  EvidenceID        String              @id @map("EvidenceID")
+  TheologicalSignificance String?       @db.NVarChar(Max)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  @@map("Miracles")
+}
+
+// PassageConnection table (many-to-many between Evidence Passages)
+model PassageConnection {
+  ConnectionID      String              @id @default(cuid()) @map("ConnectionID")
+  FromEvidencePassageID String
+  ToEvidencePassageID String
+  ConnectionType    String?
+  Lifespan          String?
+  Bio               String?             @db.NVarChar(Max)
+  AuthorID          String?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  author            Authors?            @relation(fields: [AuthorID], references: [AuthorID])
+
+  @@map("PassageConnection")
+}

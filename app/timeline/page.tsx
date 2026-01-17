@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { sources } from '@/data/sources';
+import type { EvidenceSource } from '@/data/sources';
 
 // Key historical events to display on the timeline
 const keyEvents = [
@@ -29,7 +29,7 @@ function parseYear(dateStr: string): number | null {
 }
 
 // Combine and sort all timeline items
-function getTimelineItems() {
+function getTimelineItems(sources: EvidenceSource[]) {
   const items: Array<{
     type: 'event' | 'source';
     year: number;
@@ -37,7 +37,7 @@ function getTimelineItems() {
     event?: string;
     description?: string;
     color?: string;
-    source?: (typeof sources)[0];
+    source?: EvidenceSource;
   }> = [];
 
   // Add key events
@@ -69,8 +69,28 @@ function getTimelineItems() {
 }
 
 export default function TimelinePage() {
+  const [sources, setSources] = useState<EvidenceSource[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedSource, setSelectedSource] = useState<string | null>(null);
-  const timelineItems = getTimelineItems();
+
+  // Fetch data from API
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const res = await fetch('/api/sources');
+        const data = await res.json();
+        setSources(data);
+      } catch (error) {
+        console.error('Error fetching sources:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+  }, []);
+
+  const timelineItems = getTimelineItems(sources);
 
   const minYear = Math.min(...timelineItems.map((item) => item.year));
   const maxYear = Math.max(...timelineItems.map((item) => item.year));
