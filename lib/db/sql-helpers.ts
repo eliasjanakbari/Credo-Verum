@@ -48,8 +48,21 @@ let pool: sql.ConnectionPool | null = null;
 
 export async function getPool(): Promise<sql.ConnectionPool> {
   if (!pool) {
-    const config = getConnectionConfig();
-    pool = await sql.connect(config);
+    try {
+      const config = getConnectionConfig();
+      console.log('Attempting to connect to database:', {
+        server: config.server,
+        database: config.database,
+        user: config.user,
+        // Don't log the password
+      });
+      pool = await sql.connect(config);
+      console.log('Database connection successful');
+    } catch (error) {
+      console.error('Database connection failed:', error);
+      console.error('Connection error details:', error instanceof Error ? error.message : String(error));
+      throw error;
+    }
   }
   return pool;
 }

@@ -24,9 +24,10 @@ export async function GET(request: Request) {
     return NextResponse.json(sources);
   } catch (error) {
     console.error('Error fetching sources:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch sources' },
-      { status: 500 }
-    );
+    console.error('Error details:', error instanceof Error ? error.message : String(error));
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+
+    // Return empty array instead of error object to prevent frontend crashes
+    return NextResponse.json([], { status: 200 });
   }
 }
