@@ -4,10 +4,11 @@ import sql from 'mssql';
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const authorId = parseInt(params.id);
+    const { id } = await params;
+    const authorId = parseInt(id);
     const { Name, Lifespan, Bio } = await request.json();
 
     const pool = await getPool();
@@ -36,10 +37,11 @@ export async function PUT(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const authorId = parseInt(params.id);
+    const { id } = await params;
+    const authorId = parseInt(id);
     const pool = await getPool();
 
     // Check if author has related works
