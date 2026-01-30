@@ -18,14 +18,12 @@ const config = {
 const createTableSQL = `
 -- Drop existing tables if they exist (in reverse dependency order)
 IF OBJECT_ID('[PassageConnection]', 'U') IS NOT NULL DROP TABLE [PassageConnection];
-IF OBJECT_ID('[Manuscript Witness]', 'U') IS NOT NULL DROP TABLE [Manuscript Witness];
-IF OBJECT_ID('[Evidence Passage]', 'U') IS NOT NULL DROP TABLE [Evidence Passage];
+IF OBJECT_ID('ManuscriptWitness', 'U') IS NOT NULL DROP TABLE ManuscriptWitness;
+IF OBJECT_ID('EvidencePassage', 'U') IS NOT NULL DROP TABLE EvidencePassage;
 IF OBJECT_ID('[ManuscriptWork]', 'U') IS NOT NULL DROP TABLE [ManuscriptWork];
 IF OBJECT_ID('[Manuscript]', 'U') IS NOT NULL DROP TABLE [Manuscript];
 IF OBJECT_ID('[Work]', 'U') IS NOT NULL DROP TABLE [Work];
 IF OBJECT_ID('[Authors]', 'U') IS NOT NULL DROP TABLE [Authors];
-IF OBJECT_ID('[Existence]', 'U') IS NOT NULL DROP TABLE [Existence];
-IF OBJECT_ID('[Miracles]', 'U') IS NOT NULL DROP TABLE [Miracles];
 IF OBJECT_ID('[Evidence]', 'U') IS NOT NULL DROP TABLE [Evidence];
 
 -- Create Authors table
@@ -85,44 +83,28 @@ CREATE TABLE [Evidence] (
 );
 
 -- Create Evidence Passage table
-CREATE TABLE [Evidence Passage] (
+CREATE TABLE EvidencePassage (
     [EvidencePassageID] NVARCHAR(1000) NOT NULL,
     [EvidenceID] NVARCHAR(1000) NOT NULL,
     [WorkID] NVARCHAR(1000) NOT NULL,
-    [Passage/Text] NVARCHAR(MAX) NOT NULL,
-    [OriginalLanguage] NVARCHAR(1000),
+    PassageText NVARCHAR(MAX) NOT NULL,
+    [OriginalLanguage] NCHAR(3),
     [OriginalTranslationText] NVARCHAR(MAX),
-    [createdAt] DATETIME2 NOT NULL CONSTRAINT [Evidence Passage_createdAt_df] DEFAULT CURRENT_TIMESTAMP,
+    [createdAt] DATETIME2 NOT NULL CONSTRAINT [EvidencePassage_createdAt_df] DEFAULT CURRENT_TIMESTAMP,
     [updatedAt] DATETIME2 NOT NULL,
-    CONSTRAINT [Evidence Passage_pkey] PRIMARY KEY CLUSTERED ([EvidencePassageID]),
-    CONSTRAINT [Evidence Passage_EvidenceID_fkey] FOREIGN KEY ([EvidenceID]) REFERENCES [Evidence]([EvidenceID]) ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT [Evidence Passage_WorkID_fkey] FOREIGN KEY ([WorkID]) REFERENCES [Work]([WorkID]) ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT [EvidencePassage_pkey] PRIMARY KEY CLUSTERED ([EvidencePassageID]),
+    CONSTRAINT [EvidencePassage_EvidenceID_fkey] FOREIGN KEY ([EvidenceID]) REFERENCES [Evidence]([EvidenceID]) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT [EvidencePassage_WorkID_fkey] FOREIGN KEY ([WorkID]) REFERENCES [Work]([WorkID]) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- Create Manuscript Witness table
-CREATE TABLE [Manuscript Witness] (
+CREATE TABLE ManuscriptWitness (
     [WitnessID] NVARCHAR(1000) NOT NULL,
     [EvidencePassageID] NVARCHAR(1000) NOT NULL,
     [ManuscriptID] NVARCHAR(1000) NOT NULL,
-    CONSTRAINT [Manuscript Witness_pkey] PRIMARY KEY CLUSTERED ([WitnessID]),
-    CONSTRAINT [Manuscript Witness_EvidencePassageID_fkey] FOREIGN KEY ([EvidencePassageID]) REFERENCES [Evidence Passage]([EvidencePassageID]) ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT [Manuscript Witness_ManuscriptID_fkey] FOREIGN KEY ([ManuscriptID]) REFERENCES [Manuscript]([ManuscriptID]) ON DELETE CASCADE ON UPDATE CASCADE
-);
-
--- Create Existence table
-CREATE TABLE [Existence] (
-    [EvidenceID] NVARCHAR(1000) NOT NULL,
-    CONSTRAINT [Existence_pkey] PRIMARY KEY CLUSTERED ([EvidenceID]),
-    CONSTRAINT [Existence_EvidenceID_fkey] FOREIGN KEY ([EvidenceID]) REFERENCES [Evidence]([EvidenceID]) ON DELETE CASCADE ON UPDATE CASCADE
-);
-
--- Create Miracles table
-CREATE TABLE [Miracles] (
-    [EvidenceID] NVARCHAR(1000) NOT NULL,
-    [TheologicalSignificance] NVARCHAR(MAX),
-    [createdAt] DATETIME2 NOT NULL CONSTRAINT [Miracles_createdAt_df] DEFAULT CURRENT_TIMESTAMP,
-    [updatedAt] DATETIME2 NOT NULL,
-    CONSTRAINT [Miracles_pkey] PRIMARY KEY CLUSTERED ([EvidenceID])
+    CONSTRAINT [ManuscriptWitness_pkey] PRIMARY KEY CLUSTERED ([WitnessID]),
+    CONSTRAINT [ManuscriptWitness_EvidencePassageID_fkey] FOREIGN KEY ([EvidencePassageID]) REFERENCES EvidencePassage([EvidencePassageID]) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT [ManuscriptWitness_ManuscriptID_fkey] FOREIGN KEY ([ManuscriptID]) REFERENCES [Manuscript]([ManuscriptID]) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- Create PassageConnection table
@@ -142,10 +124,10 @@ CREATE TABLE [PassageConnection] (
 
 -- Create indexes for better query performance
 CREATE INDEX [Work_AuthorID_idx] ON [Work]([AuthorID]);
-CREATE INDEX [Evidence Passage_EvidenceID_idx] ON [Evidence Passage]([EvidenceID]);
-CREATE INDEX [Evidence Passage_WorkID_idx] ON [Evidence Passage]([WorkID]);
-CREATE INDEX [Manuscript Witness_EvidencePassageID_idx] ON [Manuscript Witness]([EvidencePassageID]);
-CREATE INDEX [Manuscript Witness_ManuscriptID_idx] ON [Manuscript Witness]([ManuscriptID]);
+CREATE INDEX [EvidencePassage_EvidenceID_idx] ON EvidencePassage([EvidenceID]);
+CREATE INDEX [EvidencePassage_WorkID_idx] ON EvidencePassage([WorkID]);
+CREATE INDEX [ManuscriptWitness_EvidencePassageID_idx] ON ManuscriptWitness([EvidencePassageID]);
+CREATE INDEX [ManuscriptWitness_ManuscriptID_idx] ON ManuscriptWitness([ManuscriptID]);
 CREATE INDEX [PassageConnection_AuthorID_idx] ON [PassageConnection]([AuthorID]);
 `;
 

@@ -26,6 +26,27 @@ export default function Home() {
   const [showMiracleEvidence, setShowMiracleEvidence] = useState(false);
   const [showOriginalGreek, setShowOriginalGreek] = useState(false);
 
+  // Language mapping for ISO codes to display names and emojis
+  const languageMap: Record<string, { name: string; emoji: string }> = {
+    'grc': { name: 'Ancient Greek', emoji: '🇬🇷' },
+    'la': { name: 'Latin', emoji: '🇮🇹' },
+    'he': { name: 'Hebrew', emoji: '🇮🇱' },
+    'arc': { name: 'Aramaic', emoji: '🌐' },
+    'cop': { name: 'Coptic', emoji: '🌐' },
+    'syc': { name: 'Syriac', emoji: '🌐' },
+    // Legacy mappings for backward compatibility
+    'Greek': { name: 'Greek', emoji: '🇬🇷' },
+    'Latin': { name: 'Latin', emoji: '🇮🇹' },
+    'Hebrew': { name: 'Hebrew', emoji: '🇮🇱' },
+  };
+
+  const getLanguageInfo = (language: string | undefined) => {
+    if (!language) return { name: 'Unknown', emoji: '🌐' };
+    // Trim to handle NCHAR(3) padding (e.g., 'la ' -> 'la')
+    const trimmed = language.trim();
+    return languageMap[trimmed] || { name: trimmed, emoji: '🌐' };
+  };
+
   // Fetch data from API
   useEffect(() => {
     async function fetchData() {
@@ -176,14 +197,45 @@ export default function Home() {
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-700/60 hover:bg-slate-700 text-sm font-semibold text-slate-200 transition-colors"
           >
             <span className="text-lg">
-              {showOriginalLanguage[source.id] ? '🇬🇧' : source.language === 'Latin' ? '🇮🇹' : source.language === 'Greek' ? '🇬🇷' : '🌐'}
+              {showOriginalLanguage[source.id] ? '🇬🇧' : getLanguageInfo(source.language).emoji}
             </span>
-            {showOriginalLanguage[source.id] ? `View English` : `View Original (${source.language})`}
+            {showOriginalLanguage[source.id] ? `View English` : `View Original (${getLanguageInfo(source.language).name})`}
           </button>
         </div>
 
         {/* Manuscript witness section */}
         {renderManuscriptWitness(source, categoryIndex)}
+
+        {/* Gospel Witnesses table - only for miracle categories */}
+        {['Nature', 'Healing', 'Resurrection', 'Demons'].includes(categoryLabel) && (
+          <div className="mt-4 rounded-xl border border-slate-700/80 bg-slate-900/60 overflow-hidden">
+            <div className="px-3 py-2 bg-slate-800/80 border-b border-slate-700/80">
+              <p className="text-[10px] font-semibold tracking-[0.18em] uppercase text-slate-400">
+                Gospel Witnesses
+              </p>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-slate-700/50">
+                    <th className="px-3 py-2 text-left text-xs font-semibold text-slate-400">Gospel</th>
+                    <th className="px-3 py-2 text-left text-xs font-semibold text-slate-400">Reference</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {['Matthew', 'Mark', 'Luke', 'John'].map((gospel) => (
+                    <tr key={gospel} className="border-b border-slate-700/30 last:border-0">
+                      <td className="px-3 py-2 font-semibold text-slate-200">{gospel}</td>
+                      <td className="px-3 py-2 text-slate-300">
+                        <span className="text-slate-500">—</span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
 
         {/* Summary */}
         <p className="mt-3 text-xs text-slate-400">
@@ -347,37 +399,32 @@ export default function Home() {
     );
   };
 
-  // Derived counts from the data model
-  const categoryCounts = sources.reduce(
-    (acc, source) => {
-      acc[source.category] = (acc[source.category] ?? 0) + 1;
-      return acc;
-    },
-    {} as Record<string, number>
-  );
+  // Filter sources by evidenceType 'Existence' for the Jesus Existed section
+  const existenceSources = sources.filter((s) => s.evidenceType === 'Existence');
 
-  const romanCount = categoryCounts['Roman'] ?? 0;
-  const jewishCount = categoryCounts['Jewish'] ?? 0;
-  const christianCount = categoryCounts['Christian'] ?? 0;
-
-  const romanSources = sources.filter((s) => s.category === 'Roman');
+  const romanSources = existenceSources.filter((s) => s.category === 'Roman');
   const primaryRomanSource = romanSources[0];
-  const jewishSources = sources.filter((s) => s.category === 'Jewish');
-  const christianSources = sources.filter((s) => s.category === 'Christian');
+  const jewishSources = existenceSources.filter((s) => s.category === 'Jewish');
+  const christianSources = existenceSources.filter((s) => s.category === 'Christian');
+
+  // Recalculate counts based on existence sources only
+  const romanCount = romanSources.length;
+  const jewishCount = jewishSources.length;
+  const christianCount = christianSources.length;
+
+  // Filter sources by evidenceType 'Miracle' for the Jesus is God section
+  const miracleSources = sources.filter((s) => s.evidenceType === 'Miracle');
+
+  const natureMiracles = miracleSources.filter((s) => s.category === 'Nature');
+  const healingMiracles = miracleSources.filter((s) => s.category === 'Healing');
+  const resurrectionMiracles = miracleSources.filter((s) => s.category === 'Resurrection');
+  const demonMiracles = miracleSources.filter((s) => s.category === 'Casting out demons');
 
   // Miracle counts by category
-  const miracleCategoryCounts = miracles.reduce(
-    (acc, miracle) => {
-      acc[miracle.category] = (acc[miracle.category] ?? 0) + 1;
-      return acc;
-    },
-    {} as Record<MiracleCategory, number>
-  );
-
-  const natureMiracles = miracles.filter((m) => m.category === 'Nature');
-  const healingMiracles = miracles.filter((m) => m.category === 'Healing');
-  const resurrectionMiracles = miracles.filter((m) => m.category === 'Resurrection');
-  const demonMiracles = miracles.filter((m) => m.category === 'Casting out demons');
+  const natureCount = natureMiracles.length;
+  const healingCount = healingMiracles.length;
+  const resurrectionCount = resurrectionMiracles.length;
+  const demonCount = demonMiracles.length;
 
   if (loading) {
     return (
@@ -609,7 +656,7 @@ export default function Home() {
               </span>
 
               <span className="mt-3 text-xs font-semibold tracking-[0.25em] uppercase">
-                {sources.length} Sources
+                {existenceSources.length} Sources
               </span>
             </div>
           </button>
@@ -822,7 +869,7 @@ export default function Home() {
               </span>
 
               <span className="mt-3 text-xs font-semibold tracking-[0.25em] uppercase">
-                {miracles.length} Miracles
+                {miracleSources.length} Miracles
               </span>
             </div>
           </button>
@@ -851,7 +898,7 @@ export default function Home() {
                   Nature
                 </span>
                 <span className="mt-2 text-2xl font-extrabold text-white">
-                  {miracleCategoryCounts['Nature'] ?? 0}
+                  {natureCount}
                 </span>
               </button>
 
@@ -872,7 +919,7 @@ export default function Home() {
                   Healing
                 </span>
                 <span className="mt-2 text-2xl font-extrabold text-white">
-                  {miracleCategoryCounts['Healing'] ?? 0}
+                  {healingCount}
                 </span>
               </button>
 
@@ -893,7 +940,7 @@ export default function Home() {
                   Resurrection
                 </span>
                 <span className="mt-2 text-2xl font-extrabold text-white">
-                  {miracleCategoryCounts['Resurrection'] ?? 0}
+                  {resurrectionCount}
                 </span>
               </button>
 
@@ -914,7 +961,7 @@ export default function Home() {
                   Demons
                 </span>
                 <span className="mt-2 text-2xl font-extrabold text-white">
-                  {miracleCategoryCounts['Casting out demons'] ?? 0}
+                  {demonCount}
                 </span>
               </button>
             </div>
@@ -922,28 +969,28 @@ export default function Home() {
             {/* Nature miracles preview */}
             {activeMiracleCategory === 'Nature' && natureMiracles.length > 0 && (
               <div className="mt-5 space-y-4">
-                {natureMiracles.map((miracle) => renderMiracle(miracle))}
+                {natureMiracles.map((source, idx) => renderSourceCard(source, idx, 'Nature'))}
               </div>
             )}
 
             {/* Healing miracles preview */}
             {activeMiracleCategory === 'Healing' && healingMiracles.length > 0 && (
               <div className="mt-5 space-y-4">
-                {healingMiracles.map((miracle) => renderMiracle(miracle))}
+                {healingMiracles.map((source, idx) => renderSourceCard(source, idx, 'Healing'))}
               </div>
             )}
 
             {/* Resurrection miracles preview */}
             {activeMiracleCategory === 'Resurrection' && resurrectionMiracles.length > 0 && (
               <div className="mt-5 space-y-4">
-                {resurrectionMiracles.map((miracle) => renderMiracle(miracle))}
+                {resurrectionMiracles.map((source, idx) => renderSourceCard(source, idx, 'Resurrection'))}
               </div>
             )}
 
             {/* Casting out demons miracles preview */}
             {activeMiracleCategory === 'Casting out demons' && demonMiracles.length > 0 && (
               <div className="mt-5 space-y-4">
-                {demonMiracles.map((miracle) => renderMiracle(miracle))}
+                {demonMiracles.map((source, idx) => renderSourceCard(source, idx, 'Demons'))}
               </div>
             )}
           </div>

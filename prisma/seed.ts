@@ -16,8 +16,6 @@ async function main() {
   await prisma.manuscript.deleteMany();
   await prisma.work.deleteMany();
   await prisma.authors.deleteMany();
-  await prisma.existence.deleteMany();
-  await prisma.miracles.deleteMany();
   await prisma.evidence.deleteMany();
   console.log('✅ Existing data cleared\n');
 
@@ -118,14 +116,6 @@ async function main() {
       });
     }
 
-    // 6. Create Existence record (if evidence is about Jesus' existence)
-    if (source.tags.includes('Mentions Jesus') || source.tags.includes('Crucifixion')) {
-      await prisma.existence.create({
-        data: {
-          EvidenceID: evidence.EvidenceID,
-        },
-      });
-    }
   }
   console.log(`✅ Seeded ${sources.length} evidence sources\n`);
 
@@ -143,15 +133,7 @@ async function main() {
       },
     });
 
-    // 2. Create Miracle record
-    await prisma.miracles.create({
-      data: {
-        EvidenceID: evidence.EvidenceID,
-        TheologicalSignificance: miracle.significance,
-      },
-    });
-
-    console.log(`  ✓ Created miracle: ${miracle.name}`);
+    console.log(`  ✓ Created miracle evidence: ${miracle.name}`);
 
     // 3. Create Evidence Passages for each Gospel reference
     for (const gospelRef of miracle.gospelReferences) {
@@ -204,8 +186,6 @@ async function main() {
   const manuscriptCount = await prisma.manuscript.count();
   const evidenceCount = await prisma.evidence.count();
   const evidencePassageCount = await prisma.evidencePassage.count();
-  const miracleCount = await prisma.miracles.count();
-  const existenceCount = await prisma.existence.count();
   const witnessCount = await prisma.manuscriptWitness.count();
 
   console.log('📊 Database Summary:');
@@ -214,8 +194,6 @@ async function main() {
   console.log(`  • Manuscripts: ${manuscriptCount}`);
   console.log(`  • Evidence: ${evidenceCount}`);
   console.log(`  • Evidence Passages: ${evidencePassageCount}`);
-  console.log(`  • Miracles: ${miracleCount}`);
-  console.log(`  • Existence Records: ${existenceCount}`);
   console.log(`  • Manuscript Witnesses: ${witnessCount}`);
   console.log('\n✅ Database seeding completed successfully!');
 }

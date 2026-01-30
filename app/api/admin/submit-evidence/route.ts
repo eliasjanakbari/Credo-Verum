@@ -1,14 +1,17 @@
 import { NextResponse } from 'next/server';
 import { getPool } from '@/lib/db/sql-helpers';
+import sql from 'mssql';
 
 export async function POST(request: Request) {
   try {
     const formData = await request.json();
     const pool = await getPool();
 
-    // Store the entire form data as JSON in the PendingSubmission table
+    // Store the entire form data as JSON string in the PendingSubmission table
+    const submissionDataJson = JSON.stringify(formData);
+
     const result = await pool.request()
-      .input('submissionData', formData)
+      .input('submissionData', sql.NVarChar, submissionDataJson)
       .query(`
         INSERT INTO PendingSubmission (SubmissionData, Status, SubmittedDate)
         VALUES (@submissionData, 'Pending', GETDATE());

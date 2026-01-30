@@ -74,8 +74,8 @@ model EvidencePassage {
   EvidencePassageID String              @id @default(cuid()) @map("EvidencePassageID")
   EvidenceID        String
   WorkID            String
-  PassageText       String              @db.NVarChar(Max) @map("Passage/Text")
-  OriginalLanguage  String?
+  PassageText       String              @db.NVarChar(Max) @map("PassageText")
+  OriginalLanguage  String?             @db.NChar(3)
   OriginalTranslationText String?       @db.NVarChar(Max)
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
@@ -84,7 +84,7 @@ model EvidencePassage {
   work              Work                @relation(fields: [WorkID], references: [WorkID], onDelete: Cascade)
   manuscriptWitnesses ManuscriptWitness[]
 
-  @@map("Evidence Passage")
+  @@map("EvidencePassage")
 }
 
 // ManuscriptWitness table
@@ -96,7 +96,7 @@ model ManuscriptWitness {
   evidencePassage   EvidencePassage     @relation(fields: [EvidencePassageID], references: [EvidencePassageID], onDelete: Cascade)
   manuscript        Manuscript          @relation(fields: [ManuscriptID], references: [ManuscriptID], onDelete: Cascade)
 
-  @@map("Manuscript Witness")
+  @@map("ManuscriptWitness")
 }
 
 // Evidence table
@@ -110,28 +110,8 @@ model Evidence {
   updatedAt         DateTime            @updatedAt
 
   evidencePassages  EvidencePassage[]
-  existence         Existence?
 
   @@map("Evidence")
-}
-
-// Existence table (1:1 with Evidence)
-model Existence {
-  EvidenceID        String              @id @map("EvidenceID")
-
-  evidence          Evidence            @relation(fields: [EvidenceID], references: [EvidenceID], onDelete: Cascade)
-
-  @@map("Existence")
-}
-
-// Miracles table
-model Miracles {
-  EvidenceID        String              @id @map("EvidenceID")
-  TheologicalSignificance String?       @db.NVarChar(Max)
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
-
-  @@map("Miracles")
 }
 
 // PassageConnection table (many-to-many between Evidence Passages)

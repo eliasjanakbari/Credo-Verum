@@ -76,7 +76,7 @@ export async function getAllSources(): Promise<EvidenceSource[]> {
       e.Category,
       e.Summary,
       e.createdAt as EvidenceDate,
-      ep.[Passage/Text] as PassageText,
+      ep.PassageText as PassageText,
       ep.OriginalLanguage,
       ep.OriginalTranslationText,
       ep.DigitisedURL as PassageDigitisedURL,
@@ -94,10 +94,10 @@ export async function getAllSources(): Promise<EvidenceSource[]> {
       m.DigitisedURL as ManuscriptDigitisedURL,
       t.Tag
     FROM Evidence e
-    LEFT JOIN [Evidence Passage] ep ON e.EvidenceID = ep.EvidenceID
+    LEFT JOIN EvidencePassage ep ON e.EvidenceID = ep.EvidenceID
     LEFT JOIN Work w ON ep.WorkID = w.WorkID
     LEFT JOIN Authors a ON w.AuthorID = a.AuthorID
-    LEFT JOIN [Manuscript Witness] mw ON ep.EvidencePassageID = mw.EvidencePassageID
+    LEFT JOIN ManuscriptWitness mw ON ep.EvidencePassageID = mw.EvidencePassageID
     LEFT JOIN Manuscript m ON mw.ManuscriptID = m.ManuscriptID
     LEFT JOIN EvidenceTag et ON e.EvidenceID = et.EvidenceID
     LEFT JOIN Tag t ON et.TagID = t.TagID
@@ -124,7 +124,7 @@ export async function getSourceById(id: string): Promise<EvidenceSource | null> 
         e.Category,
         e.Summary,
         e.createdAt as EvidenceDate,
-        ep.[Passage/Text] as PassageText,
+        ep.PassageText as PassageText,
         ep.OriginalLanguage,
         ep.OriginalTranslationText,
         ep.DigitisedURL as PassageDigitisedURL,
@@ -142,10 +142,10 @@ export async function getSourceById(id: string): Promise<EvidenceSource | null> 
         m.DigitisedURL as ManuscriptDigitisedURL,
         t.Tag
       FROM Evidence e
-      LEFT JOIN [Evidence Passage] ep ON e.EvidenceID = ep.EvidenceID
+      LEFT JOIN EvidencePassage ep ON e.EvidenceID = ep.EvidenceID
       LEFT JOIN Work w ON ep.WorkID = w.WorkID
       LEFT JOIN Authors a ON w.AuthorID = a.AuthorID
-      LEFT JOIN [Manuscript Witness] mw ON ep.EvidencePassageID = mw.EvidencePassageID
+      LEFT JOIN ManuscriptWitness mw ON ep.EvidencePassageID = mw.EvidencePassageID
       LEFT JOIN Manuscript m ON mw.ManuscriptID = m.ManuscriptID
       LEFT JOIN EvidenceTag et ON e.EvidenceID = et.EvidenceID
       LEFT JOIN Tag t ON et.TagID = t.TagID
@@ -172,7 +172,7 @@ export async function getSourcesByCategory(category: EvidenceCategory): Promise<
         e.Category,
         e.Summary,
         e.createdAt as EvidenceDate,
-        ep.[Passage/Text] as PassageText,
+        ep.PassageText as PassageText,
         ep.OriginalLanguage,
         ep.OriginalTranslationText,
         ep.DigitisedURL as PassageDigitisedURL,
@@ -190,10 +190,10 @@ export async function getSourcesByCategory(category: EvidenceCategory): Promise<
         m.DigitisedURL as ManuscriptDigitisedURL,
         t.Tag
       FROM Evidence e
-      LEFT JOIN [Evidence Passage] ep ON e.EvidenceID = ep.EvidenceID
+      LEFT JOIN EvidencePassage ep ON e.EvidenceID = ep.EvidenceID
       LEFT JOIN Work w ON ep.WorkID = w.WorkID
       LEFT JOIN Authors a ON w.AuthorID = a.AuthorID
-      LEFT JOIN [Manuscript Witness] mw ON ep.EvidencePassageID = mw.EvidencePassageID
+      LEFT JOIN ManuscriptWitness mw ON ep.EvidencePassageID = mw.EvidencePassageID
       LEFT JOIN Manuscript m ON mw.ManuscriptID = m.ManuscriptID
       LEFT JOIN EvidenceTag et ON e.EvidenceID = et.EvidenceID
       LEFT JOIN Tag t ON et.TagID = t.TagID
@@ -220,7 +220,7 @@ export async function searchSources(searchTerm: string): Promise<EvidenceSource[
         e.Category,
         e.Summary,
         e.createdAt as EvidenceDate,
-        ep.[Passage/Text] as PassageText,
+        ep.PassageText as PassageText,
         ep.OriginalLanguage,
         ep.OriginalTranslationText,
         ep.DigitisedURL as PassageDigitisedURL,
@@ -238,10 +238,10 @@ export async function searchSources(searchTerm: string): Promise<EvidenceSource[
         m.DigitisedURL as ManuscriptDigitisedURL,
         t.Tag
       FROM Evidence e
-      LEFT JOIN [Evidence Passage] ep ON e.EvidenceID = ep.EvidenceID
+      LEFT JOIN EvidencePassage ep ON e.EvidenceID = ep.EvidenceID
       LEFT JOIN Work w ON ep.WorkID = w.WorkID
       LEFT JOIN Authors a ON w.AuthorID = a.AuthorID
-      LEFT JOIN [Manuscript Witness] mw ON ep.EvidencePassageID = mw.EvidencePassageID
+      LEFT JOIN ManuscriptWitness mw ON ep.EvidencePassageID = mw.EvidencePassageID
       LEFT JOIN Manuscript m ON mw.ManuscriptID = m.ManuscriptID
       LEFT JOIN EvidenceTag et ON e.EvidenceID = et.EvidenceID
       LEFT JOIN Tag t ON et.TagID = t.TagID

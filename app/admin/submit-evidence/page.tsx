@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
 interface Author {
@@ -34,6 +35,9 @@ interface Tag {
 }
 
 export default function SubmitEvidence() {
+  const searchParams = useSearchParams();
+  const urlDraftId = searchParams.get('draftId');
+
   const [authors, setAuthors] = useState<Author[]>([]);
   const [works, setWorks] = useState<Work[]>([]);
   const [manuscripts, setManuscripts] = useState<Manuscript[]>([]);
@@ -43,6 +47,11 @@ export default function SubmitEvidence() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [savingDraft, setSavingDraft] = useState(false);
+  const [lastSaved, setLastSaved] = useState<string | null>(null);
+  const [draftId, setDraftId] = useState<number | null>(urlDraftId ? parseInt(urlDraftId) : null);
+
+  const DRAFT_STORAGE_KEY = 'evidence_submission_draft';
 
   const [formData, setFormData] = useState({
     // Author selection or creation
@@ -58,18 +67,19 @@ export default function SubmitEvidence() {
     newWorkPublishedDate: '',
     newWorkPublishedYear: '',
 
-    // Evidence Passage
-    passageText: '',
-    passageSummary: '',
-    passageReference: '',
-    originalTranslationText: '',
-    digitisedURL: '',
-
     // Evidence
     evidenceType: '',
     category: '',
     newEvidenceType: '',
     newCategory: '',
+    evidenceTitle: '',
+
+    // Evidence Passage
+    passageText: '',
+    originalLanguage: '',
+    originalTranslationText: '',
+    passageReference: '',
+    digitisedURL: '',
 
     // Manuscript selection or creation
     manuscriptId: '',
@@ -86,7 +96,20 @@ export default function SubmitEvidence() {
 
   useEffect(() => {
     fetchDropdownData();
-  }, []);
+    // Load draft from database if draftId in URL, otherwise from localStorage
+    if (urlDraftId) {
+      loadDraftFromDatabase(parseInt(urlDraftId));
+    } else {
+      loadDraftFromLocalStorage();
+    }
+  }, [urlDraftId]);
+
+  // Auto-save to localStorage when form data changes
+  useEffect(() => {
+    if (!loading) {
+      saveDraftToLocalStorage();
+    }
+  }, [formData, loading]);
 
   useEffect(() => {
     if (formData.authorId) {
@@ -163,6 +186,116 @@ export default function SubmitEvidence() {
     }
   };
 
+  // Draft management functions
+  const saveDraftToLocalStorage = () => {
+    try {
+      const draftData = {
+        formData,
+        savedAt: new Date().toISOString(),
+      };
+      localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draftData));
+      setLastSaved(new Date().toLocaleTimeString());
+    } catch (error) {
+      console.error('Error saving draft to localStorage:', error);
+    }
+  };
+
+  const loadDraftFromLocalStorage = () => {
+    try {
+      const saved = localStorage.getItem(DRAFT_STORAGE_KEY);
+      if (saved) {
+        const draftData = JSON.parse(saved);
+        if (draftData.formData) {
+          setFormData(draftData.formData);
+          setLastSaved(new Date(draftData.savedAt).toLocaleTimeString());
+        }
+      }
+    } catch (error) {
+      console.error('Error loading draft from localStorage:', error);
+    }
+  };
+
+  const loadDraftFromDatabase = async (id: number) => {
+    try {
+      const response = await fetch(`/api/admin/drafts/${id}`);
+      const data = await response.json();
+
+      if (data.DraftData) {
+        setFormData(data.DraftData);
+        setDraftId(id);
+        setLastSaved(new Date(data.UpdatedDate).toLocaleTimeString());
+      }
+    } catch (error) {
+      console.error('Error loading draft from database:', error);
+      // Fall back to localStorage if database load fails
+      loadDraftFromLocalStorage();
+    }
+  };
+
+  const clearDraft = () => {
+    localStorage.removeItem(DRAFT_STORAGE_KEY);
+    setLastSaved(null);
+    setDraftId(null);
+    setFormData({
+      authorId: '',
+      newAuthorName: '',
+      newAuthorLifespan: '',
+      newAuthorBio: '',
+      workId: '',
+      newWorkTitle: '',
+      newWorkSummary: '',
+      newWorkPublishedDate: '',
+      newWorkPublishedYear: '',
+      evidenceType: '',
+      category: '',
+      newEvidenceType: '',
+      newCategory: '',
+      evidenceTitle: '',
+      passageText: '',
+      originalLanguage: '',
+      originalTranslationText: '',
+      passageReference: '',
+      digitisedURL: '',
+      manuscriptId: '',
+      newManuscriptTitle: '',
+      newManuscriptLibrary: '',
+      newManuscriptShelfmark: '',
+      newManuscriptDate: '',
+      newManuscriptDigitisedURL: '',
+      newManuscriptImageURL: '',
+      selectedTags: [],
+    });
+  };
+
+  const saveDraftToDatabase = async () => {
+    setSavingDraft(true);
+    try {
+      const response = await fetch('/api/admin/drafts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          draftId,
+          formData,
+        }),
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        setDraftId(result.draftId);
+        alert('Draft saved successfully!');
+      } else {
+        alert('Error saving draft: ' + result.error);
+      }
+    } catch (error) {
+      console.error('Error saving draft to database:', error);
+      alert('Error saving draft. Please try again.');
+    } finally {
+      setSavingDraft(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
@@ -189,15 +322,16 @@ export default function SubmitEvidence() {
           newWorkSummary: '',
           newWorkPublishedDate: '',
           newWorkPublishedYear: '',
-          passageText: '',
-          passageSummary: '',
-          passageReference: '',
-          originalTranslationText: '',
-          digitisedURL: '',
           evidenceType: '',
           category: '',
           newEvidenceType: '',
           newCategory: '',
+          evidenceTitle: '',
+          passageText: '',
+          originalLanguage: '',
+          originalTranslationText: '',
+          passageReference: '',
+          digitisedURL: '',
           manuscriptId: '',
           newManuscriptTitle: '',
           newManuscriptLibrary: '',
@@ -522,6 +656,20 @@ export default function SubmitEvidence() {
 
               <div>
                 <label className="block text-sm font-medium mb-2">
+                  Evidence Title *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formData.evidenceTitle}
+                  onChange={(e) => setFormData({ ...formData, evidenceTitle: e.target.value })}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-md"
+                  placeholder="Enter evidence title..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">
                   Passage Text (English) *
                 </label>
                 <textarea
@@ -530,8 +678,27 @@ export default function SubmitEvidence() {
                   onChange={(e) => setFormData({ ...formData, passageText: e.target.value })}
                   rows={6}
                   className="w-full px-3 py-2 border border-slate-300 rounded-md"
-                  placeholder="Enter the English translation of the passage..."
+                  placeholder="Christus, the founder of the name, had undergone the death penalty in the reign of Tiberius, by sentence of the procurator Pontius Pilatus…"
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Original Language
+                </label>
+                <select
+                  value={formData.originalLanguage}
+                  onChange={(e) => setFormData({ ...formData, originalLanguage: e.target.value })}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-md"
+                >
+                  <option value="">-- Select Language --</option>
+                  <option value="grc">🇬🇷 Ancient Greek (grc)</option>
+                  <option value="la">🇮🇹 Latin (la)</option>
+                  <option value="he">🇮🇱 Hebrew (he)</option>
+                  <option value="arc">Aramaic (arc)</option>
+                  <option value="cop">Coptic (cop)</option>
+                  <option value="syc">Syriac (syc)</option>
+                </select>
               </div>
 
               <div>
@@ -543,20 +710,7 @@ export default function SubmitEvidence() {
                   onChange={(e) => setFormData({ ...formData, originalTranslationText: e.target.value })}
                   rows={4}
                   className="w-full px-3 py-2 border border-slate-300 rounded-md"
-                  placeholder="Enter the original language text..."
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Passage Summary
-                </label>
-                <textarea
-                  value={formData.passageSummary}
-                  onChange={(e) => setFormData({ ...formData, passageSummary: e.target.value })}
-                  rows={3}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-md"
-                  placeholder="Brief summary of the passage significance..."
+                  placeholder="Auctor nominis eius Christus Tiberio imperitante per procuratorem Pontium Pilatum supplicio adfectus erat…"
                 />
               </div>
 
@@ -731,22 +885,56 @@ export default function SubmitEvidence() {
             </div>
           </div>
 
-          {/* Submit Button */}
-          <div className="flex gap-4">
-            <button
-              type="submit"
-              disabled={submitting}
-              className="px-6 py-3 bg-sky-600 text-white rounded-md hover:bg-sky-700 disabled:bg-slate-400 disabled:cursor-not-allowed"
-            >
-              {submitting ? 'Submitting...' : 'Submit for Approval'}
-            </button>
+          {/* Draft Status & Actions */}
+          <div className="bg-slate-50 p-4 rounded-lg">
+            <div className="flex items-center justify-between mb-4">
+              <div className="text-sm text-slate-600">
+                {lastSaved ? (
+                  <span>Auto-saved at {lastSaved}</span>
+                ) : (
+                  <span>Draft will auto-save as you type</span>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={clearDraft}
+                className="text-sm text-red-600 hover:text-red-700"
+              >
+                Clear Draft
+              </button>
+            </div>
 
-            <Link
-              href="/admin"
-              className="px-6 py-3 bg-slate-200 text-slate-700 rounded-md hover:bg-slate-300"
-            >
-              Cancel
-            </Link>
+            <div className="flex gap-4 flex-wrap">
+              <button
+                type="submit"
+                disabled={submitting}
+                className="px-6 py-3 bg-sky-600 text-white rounded-md hover:bg-sky-700 disabled:bg-slate-400 disabled:cursor-not-allowed"
+              >
+                {submitting ? 'Submitting...' : 'Submit for Approval'}
+              </button>
+
+              <button
+                type="button"
+                onClick={saveDraftToDatabase}
+                disabled={savingDraft}
+                className="px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-slate-400 disabled:cursor-not-allowed"
+              >
+                {savingDraft ? 'Saving...' : 'Save Draft to Database'}
+              </button>
+
+              <Link
+                href="/admin"
+                className="px-6 py-3 bg-slate-200 text-slate-700 rounded-md hover:bg-slate-300"
+              >
+                Cancel
+              </Link>
+            </div>
+
+            {draftId && (
+              <p className="text-sm text-green-600 mt-2">
+                Draft ID: {draftId} - You can resume this draft later from the admin dashboard.
+              </p>
+            )}
           </div>
         </form>
       </div>

@@ -38,14 +38,12 @@ async function seedDatabase() {
         // Clear existing data
         console.log('🧹 Clearing existing data...');
         await pool.request().query('DELETE FROM [PassageConnection]');
-        await pool.request().query('DELETE FROM [Manuscript Witness]');
-        await pool.request().query('DELETE FROM [Evidence Passage]');
+        await pool.request().query('DELETE FROM ManuscriptWitness');
+        await pool.request().query('DELETE FROM EvidencePassage');
         await pool.request().query('DELETE FROM [ManuscriptWork]');
         await pool.request().query('DELETE FROM [Manuscript]');
         await pool.request().query('DELETE FROM [Work]');
         await pool.request().query('DELETE FROM [Authors]');
-        await pool.request().query('DELETE FROM [Existence]');
-        await pool.request().query('DELETE FROM [Miracles]');
         await pool.request().query('DELETE FROM [Evidence]');
         console.log('✅ Existing data cleared\n');
 
@@ -119,7 +117,7 @@ async function seedDatabase() {
                 .input('OriginalTranslationText', sql.NVarChar, source.quoteOriginal)
                 .input('updatedAt', sql.DateTime2, new Date())
                 .query(`
-                    INSERT INTO [Evidence Passage] ([EvidencePassageID], [EvidenceID], [WorkID], [Passage/Text], [OriginalLanguage], [OriginalTranslationText], [updatedAt])
+                    INSERT INTO EvidencePassage ([EvidencePassageID], [EvidenceID], [WorkID], PassageText, [OriginalLanguage], [OriginalTranslationText], [updatedAt])
                     VALUES (@EvidencePassageID, @EvidenceID, @WorkID, @PassageText, @OriginalLanguage, @OriginalTranslationText, @updatedAt)
                 `);
 
@@ -162,20 +160,11 @@ async function seedDatabase() {
                     .input('EvidencePassageID', sql.NVarChar, evidencePassageId)
                     .input('ManuscriptID', sql.NVarChar, manuscriptId)
                     .query(`
-                        INSERT INTO [Manuscript Witness] ([WitnessID], [EvidencePassageID], [ManuscriptID])
+                        INSERT INTO ManuscriptWitness ([WitnessID], [EvidencePassageID], [ManuscriptID])
                         VALUES (@WitnessID, @EvidencePassageID, @ManuscriptID)
                     `);
             }
 
-            // 6. Create Existence record (if evidence is about Jesus' existence)
-            if (source.tags.includes('Mentions Jesus') || source.tags.includes('Crucifixion')) {
-                await pool.request()
-                    .input('EvidenceID', sql.NVarChar, evidenceId)
-                    .query(`
-                        INSERT INTO [Existence] ([EvidenceID])
-                        VALUES (@EvidenceID)
-                    `);
-            }
         }
         console.log(`✅ Seeded ${sources.length} evidence sources\n`);
 
@@ -196,17 +185,7 @@ async function seedDatabase() {
                     VALUES (@EvidenceID, @Title, @EvidenceType, @Category, @Summary, @updatedAt)
                 `);
 
-            // 2. Create Miracle record
-            await pool.request()
-                .input('EvidenceID', sql.NVarChar, evidenceId)
-                .input('TheologicalSignificance', sql.NVarChar, miracle.significance)
-                .input('updatedAt', sql.DateTime2, new Date())
-                .query(`
-                    INSERT INTO [Miracles] ([EvidenceID], [TheologicalSignificance], [updatedAt])
-                    VALUES (@EvidenceID, @TheologicalSignificance, @updatedAt)
-                `);
-
-            console.log(`  ✓ Created miracle: ${miracle.name}`);
+            console.log(`  ✓ Created miracle evidence: ${miracle.name}`);
 
             // 3. Create Evidence Passages for each Gospel reference
             for (const gospelRef of miracle.gospelReferences) {
@@ -256,7 +235,7 @@ async function seedDatabase() {
                     .input('OriginalTranslationText', sql.NVarChar, gospelRef.verse)
                     .input('updatedAt', sql.DateTime2, new Date())
                     .query(`
-                        INSERT INTO [Evidence Passage] ([EvidencePassageID], [EvidenceID], [WorkID], [Passage/Text], [OriginalLanguage], [OriginalTranslationText], [updatedAt])
+                        INSERT INTO EvidencePassage ([EvidencePassageID], [EvidenceID], [WorkID], PassageText, [OriginalLanguage], [OriginalTranslationText], [updatedAt])
                         VALUES (@EvidencePassageID, @EvidenceID, @WorkID, @PassageText, @OriginalLanguage, @OriginalTranslationText, @updatedAt)
                     `);
             }
@@ -267,7 +246,7 @@ async function seedDatabase() {
         console.log('📊 Database Summary:');
         const tables = [
             'Authors', 'Work', 'Manuscript', 'Evidence',
-            'Evidence Passage', 'Miracles', 'Existence', 'Manuscript Witness'
+            'EvidencePassage', 'ManuscriptWitness'
         ];
 
         for (const table of tables) {

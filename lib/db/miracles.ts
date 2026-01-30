@@ -14,7 +14,7 @@ function groupSQLResults(rows: any[]): Miracle[] {
         category: row.Category as MiracleCategory,
         name: row.Title,
         description: row.Summary || '',
-        significance: row.TheologicalSignificance || '',
+        significance: '', // TheologicalSignificance table removed
         tags: [],
         gospelReferences: [],
       });
@@ -48,12 +48,10 @@ export async function getAllMiracles(): Promise<Miracle[]> {
       e.Title,
       e.Category,
       e.Summary,
-      m.TheologicalSignificance,
-      ep.[Passage/Text] as PassageText,
+      ep.PassageText as PassageText,
       w.Title as WorkTitle
     FROM Evidence e
-    INNER JOIN Miracles m ON e.EvidenceID = m.EvidenceID
-    LEFT JOIN [Evidence Passage] ep ON e.EvidenceID = ep.EvidenceID
+    LEFT JOIN EvidencePassage ep ON e.EvidenceID = ep.EvidenceID
     LEFT JOIN Work w ON ep.WorkID = w.WorkID
     WHERE e.EvidenceType = 'Gospel Account'
     ORDER BY e.createdAt ASC
@@ -76,14 +74,12 @@ export async function getMiracleById(id: string): Promise<Miracle | null> {
         e.Title,
         e.Category,
         e.Summary,
-        m.TheologicalSignificance,
-        ep.[Passage/Text] as PassageText,
+        ep.PassageText as PassageText,
         w.Title as WorkTitle
       FROM Evidence e
-      INNER JOIN Miracles m ON e.EvidenceID = m.EvidenceID
-      LEFT JOIN [Evidence Passage] ep ON e.EvidenceID = ep.EvidenceID
+      LEFT JOIN EvidencePassage ep ON e.EvidenceID = ep.EvidenceID
       LEFT JOIN Work w ON ep.WorkID = w.WorkID
-      WHERE e.EvidenceID = @id
+      WHERE e.EvidenceID = @id AND e.EvidenceType = 'Gospel Account'
     `);
 
   const miracles = groupSQLResults(result.recordset);
@@ -104,12 +100,10 @@ export async function getMiraclesByCategory(category: MiracleCategory): Promise<
         e.Title,
         e.Category,
         e.Summary,
-        m.TheologicalSignificance,
-        ep.[Passage/Text] as PassageText,
+        ep.PassageText as PassageText,
         w.Title as WorkTitle
       FROM Evidence e
-      INNER JOIN Miracles m ON e.EvidenceID = m.EvidenceID
-      LEFT JOIN [Evidence Passage] ep ON e.EvidenceID = ep.EvidenceID
+      LEFT JOIN EvidencePassage ep ON e.EvidenceID = ep.EvidenceID
       LEFT JOIN Work w ON ep.WorkID = w.WorkID
       WHERE e.Category = @category AND e.EvidenceType = 'Gospel Account'
       ORDER BY e.createdAt ASC
@@ -132,12 +126,10 @@ export async function searchMiracles(searchTerm: string): Promise<Miracle[]> {
         e.Title,
         e.Category,
         e.Summary,
-        m.TheologicalSignificance,
-        ep.[Passage/Text] as PassageText,
+        ep.PassageText as PassageText,
         w.Title as WorkTitle
       FROM Evidence e
-      INNER JOIN Miracles m ON e.EvidenceID = m.EvidenceID
-      LEFT JOIN [Evidence Passage] ep ON e.EvidenceID = ep.EvidenceID
+      LEFT JOIN EvidencePassage ep ON e.EvidenceID = ep.EvidenceID
       LEFT JOIN Work w ON ep.WorkID = w.WorkID
       WHERE e.EvidenceType = 'Gospel Account'
         AND (e.Title LIKE @search OR e.Summary LIKE @search)
@@ -161,12 +153,10 @@ export async function getMiraclesByGospel(gospel: 'Matthew' | 'Mark' | 'Luke' | 
         e.Title,
         e.Category,
         e.Summary,
-        m.TheologicalSignificance,
-        ep.[Passage/Text] as PassageText,
+        ep.PassageText as PassageText,
         w.Title as WorkTitle
       FROM Evidence e
-      INNER JOIN Miracles m ON e.EvidenceID = m.EvidenceID
-      LEFT JOIN [Evidence Passage] ep ON e.EvidenceID = ep.EvidenceID
+      LEFT JOIN EvidencePassage ep ON e.EvidenceID = ep.EvidenceID
       LEFT JOIN Work w ON ep.WorkID = w.WorkID
       WHERE e.EvidenceType = 'Gospel Account'
         AND w.Title = @gospel
