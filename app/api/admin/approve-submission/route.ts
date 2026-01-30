@@ -2,6 +2,13 @@ import { NextResponse } from 'next/server';
 import { getPool } from '@/lib/db/sql-helpers';
 import sql from 'mssql';
 
+// Helper function to safely parse integers
+function safeParseInt(value: any): number | null {
+  if (value === null || value === undefined || value === '') return null;
+  const parsed = parseInt(String(value), 10);
+  return isNaN(parsed) ? null : parsed;
+}
+
 export async function POST(request: Request) {
   try {
     const { pendingId, action, reviewNotes } = await request.json();
