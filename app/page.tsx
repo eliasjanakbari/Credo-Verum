@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import type { EvidenceSource } from '@/data/sources';
-import type { Miracle, MiracleCategory } from '@/data/miracles';
+import type { EvidenceSource } from '@/lib/types/sources';
+import type { Miracle, MiracleCategory } from '@/lib/types/miracles';
 
 export default function Home() {
   // Data state
@@ -413,12 +413,12 @@ export default function Home() {
   const christianCount = christianSources.length;
 
   // Filter sources by evidenceType 'Miracle' for the Jesus is God section
-  const miracleSources = sources.filter((s) => s.evidenceType === 'Miracle');
+  const miracleSources = sources.filter((s) => s.evidenceType === 'Miracles');
 
   const natureMiracles = miracleSources.filter((s) => s.category === 'Nature');
   const healingMiracles = miracleSources.filter((s) => s.category === 'Healing');
   const resurrectionMiracles = miracleSources.filter((s) => s.category === 'Resurrection');
-  const demonMiracles = miracleSources.filter((s) => s.category === 'Casting out demons');
+  const demonMiracles = miracleSources.filter((s) => s.category === 'Demons');
 
   // Miracle counts by category
   const natureCount = natureMiracles.length;
@@ -948,11 +948,11 @@ export default function Home() {
               <button
                 type="button"
                 onClick={() => {
-                  setActiveMiracleCategory((prev) => (prev === 'Casting out demons' ? null : 'Casting out demons'));
+                  setActiveMiracleCategory((prev) => (prev === 'Demons' ? null : 'Demons'));
                   setSelectedMiracle(null);
                 }}
                 className={`flex flex-col items-center rounded-3xl border px-4 py-4 text-center shadow-lg transition-colors ${
-                  activeMiracleCategory === 'Casting out demons'
+                  activeMiracleCategory === 'Demons'
                     ? 'border-[#b0a695] bg-slate-800'
                     : 'border-[#776b5d] bg-slate-800/80 hover:border-[#b0a695]'
                 }`}
@@ -988,7 +988,7 @@ export default function Home() {
             )}
 
             {/* Casting out demons miracles preview */}
-            {activeMiracleCategory === 'Casting out demons' && demonMiracles.length > 0 && (
+            {activeMiracleCategory === 'Demons' && demonMiracles.length > 0 && (
               <div className="mt-5 space-y-4">
                 {demonMiracles.map((source, idx) => renderSourceCard(source, idx, 'Demons'))}
               </div>

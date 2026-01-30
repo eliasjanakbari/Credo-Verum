@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
@@ -34,7 +34,7 @@ interface Tag {
   Tag: string;
 }
 
-export default function SubmitEvidence() {
+function SubmitEvidenceContent() {
   const searchParams = useSearchParams();
   const urlDraftId = searchParams.get('draftId');
 
@@ -939,5 +939,17 @@ export default function SubmitEvidence() {
         </form>
       </div>
     </main>
+  );
+}
+
+export default function SubmitEvidence() {
+  return (
+    <Suspense fallback={
+      <main className="flex min-h-screen items-center justify-center bg-gradient-to-b from-slate-50 to-white">
+        <div className="text-slate-500">Loading form...</div>
+      </main>
+    }>
+      <SubmitEvidenceContent />
+    </Suspense>
   );
 }

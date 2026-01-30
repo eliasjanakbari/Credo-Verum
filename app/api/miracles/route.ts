@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getAllMiracles, getMiraclesByCategory, getMiraclesByGospel, searchMiracles } from '@/lib/db/miracles';
-import type { MiracleCategory } from '@/data/miracles';
+import type { MiracleCategory } from '@/lib/types/miracles';
 
 export async function GET(request: Request) {
   try {

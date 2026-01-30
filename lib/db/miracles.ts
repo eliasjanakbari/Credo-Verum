@@ -1,5 +1,5 @@
 import { getPool } from './sql-helpers';
-import type { Miracle, MiracleCategory, GospelReference } from '../../data/miracles';
+import type { Miracle, MiracleCategory, GospelReference } from '../types/miracles';
 
 /**
  * Helper function to group and transform SQL results into Miracle format
@@ -53,7 +53,7 @@ export async function getAllMiracles(): Promise<Miracle[]> {
     FROM Evidence e
     LEFT JOIN EvidencePassage ep ON e.EvidenceID = ep.EvidenceID
     LEFT JOIN Work w ON ep.WorkID = w.WorkID
-    WHERE e.EvidenceType = 'Gospel Account'
+    WHERE e.EvidenceType = 'Miracles'
     ORDER BY e.createdAt ASC
   `);
 
@@ -131,7 +131,7 @@ export async function searchMiracles(searchTerm: string): Promise<Miracle[]> {
       FROM Evidence e
       LEFT JOIN EvidencePassage ep ON e.EvidenceID = ep.EvidenceID
       LEFT JOIN Work w ON ep.WorkID = w.WorkID
-      WHERE e.EvidenceType = 'Gospel Account'
+      WHERE e.EvidenceType = 'Miracles'
         AND (e.Title LIKE @search OR e.Summary LIKE @search)
       ORDER BY e.createdAt ASC
     `);
@@ -158,7 +158,7 @@ export async function getMiraclesByGospel(gospel: 'Matthew' | 'Mark' | 'Luke' | 
       FROM Evidence e
       LEFT JOIN EvidencePassage ep ON e.EvidenceID = ep.EvidenceID
       LEFT JOIN Work w ON ep.WorkID = w.WorkID
-      WHERE e.EvidenceType = 'Gospel Account'
+      WHERE e.EvidenceType = 'Miracles'
         AND w.Title = @gospel
       ORDER BY e.createdAt ASC
     `);

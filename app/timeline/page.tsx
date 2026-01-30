@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import type { EvidenceSource } from '@/data/sources';
+import type { EvidenceSource } from '@/lib/types/sources';
 
 // Key historical events to display on the timeline
 const keyEvents = [

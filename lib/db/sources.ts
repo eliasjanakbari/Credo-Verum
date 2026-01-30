@@ -1,5 +1,5 @@
 import { getPool } from './sql-helpers';
-import type { EvidenceSource, EvidenceCategory, ManuscriptWitness } from '../../data/sources';
+import type { EvidenceSource, EvidenceCategory, ManuscriptWitness } from '../types/sources';
 
 /**
  * Helper function to group and transform SQL results into EvidenceSource format
@@ -101,7 +101,7 @@ export async function getAllSources(): Promise<EvidenceSource[]> {
     LEFT JOIN Manuscript m ON mw.ManuscriptID = m.ManuscriptID
     LEFT JOIN EvidenceTag et ON e.EvidenceID = et.EvidenceID
     LEFT JOIN Tag t ON et.TagID = t.TagID
-    WHERE e.EvidenceType != 'Gospel Account'
+    WHERE e.EvidenceType != 'Miracles'
     ORDER BY e.createdAt ASC
   `);
 
@@ -245,7 +245,7 @@ export async function searchSources(searchTerm: string): Promise<EvidenceSource[
       LEFT JOIN Manuscript m ON mw.ManuscriptID = m.ManuscriptID
       LEFT JOIN EvidenceTag et ON e.EvidenceID = et.EvidenceID
       LEFT JOIN Tag t ON et.TagID = t.TagID
-      WHERE e.EvidenceType != 'Gospel Account'
+      WHERE e.EvidenceType != 'Miracles'
         AND (e.Title LIKE @search OR e.Summary LIKE @search OR e.EvidenceType LIKE @search)
       ORDER BY e.createdAt ASC
     `);

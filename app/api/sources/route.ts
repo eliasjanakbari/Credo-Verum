@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getAllSources, getSourcesByCategory, searchSources } from '@/lib/db/sources';
-import type { EvidenceCategory } from '@/data/sources';
+import type { EvidenceCategory } from '@/lib/types/sources';
 
 export async function GET(request: Request) {
   try {
