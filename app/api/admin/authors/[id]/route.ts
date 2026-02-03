@@ -7,13 +7,12 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
-    const authorId = parseInt(id);
+    const { id: authorId } = await params;
     const { Name, Lifespan, Bio } = await request.json();
 
     const pool = await getPool();
     await pool.request()
-      .input('authorId', sql.Int, authorId)
+      .input('authorId', sql.NVarChar(50), authorId)
       .input('name', sql.NVarChar, Name)
       .input('lifespan', sql.NVarChar, Lifespan || null)
       .input('bio', sql.NVarChar, Bio || null)
@@ -21,7 +20,8 @@ export async function PUT(
         UPDATE dbo.Authors
         SET Name = @name,
             Lifespan = @lifespan,
-            Bio = @bio
+            Bio = @bio,
+            updatedAt = GETDATE()
         WHERE AuthorID = @authorId
       `);
 
@@ -40,16 +40,15 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
-    const authorId = parseInt(id);
+    const { id: authorId } = await params;
     const pool = await getPool();
 
     // Check if author has related works
     const worksCheck = await pool.request()
-      .input('authorId', sql.Int, authorId)
+      .input('authorId', sql.NVarChar(50), authorId)
       .query(`
         SELECT COUNT(*) as Count
-        FROM dbo.Works
+        FROM dbo.Work
         WHERE AuthorID = @authorId
       `);
 
@@ -65,7 +64,7 @@ export async function DELETE(
 
     // Delete the author
     await pool.request()
-      .input('authorId', sql.Int, authorId)
+      .input('authorId', sql.NVarChar(50), authorId)
       .query(`
         DELETE FROM dbo.Authors
         WHERE AuthorID = @authorId

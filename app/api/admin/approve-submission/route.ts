@@ -2,11 +2,40 @@ import { NextResponse } from 'next/server';
 import { getPool } from '@/lib/db/sql-helpers';
 import sql from 'mssql';
 
-// Helper function to safely parse integers
-function safeParseInt(value: any): number | null {
-  if (value === null || value === undefined || value === '') return null;
-  const parsed = parseInt(String(value), 10);
-  return isNaN(parsed) ? null : parsed;
+// Helper function to generate random string IDs (database uses nvarchar IDs)
+function generateId(): string {
+  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+}
+
+// Helper function to get valid string ID or null
+function getStringId(value: any): string | null {
+  if (!value || value === '') return null;
+  return String(value);
+}
+
+// Valid ISO 639 language codes for ancient languages
+const validLanguageCodes = ['grc', 'la', 'he', 'arc', 'cop', 'syc'];
+
+// Helper function to convert language input to valid ISO code
+function getLanguageCode(value: any): string {
+  if (!value || value === '') return 'grc';
+  const val = String(value).toLowerCase().trim();
+
+  // If it's already a valid ISO code, return it (padded to 3 chars if needed)
+  if (validLanguageCodes.includes(val)) return val;
+  if (validLanguageCodes.includes(val.substring(0, 3))) return val.substring(0, 3);
+  if (validLanguageCodes.includes(val.substring(0, 2))) return val.substring(0, 2);
+
+  // Map common language names to ISO codes
+  if (val.includes('greek')) return 'grc';
+  if (val.includes('latin')) return 'la';
+  if (val.includes('hebrew')) return 'he';
+  if (val.includes('aramaic')) return 'arc';
+  if (val.includes('coptic')) return 'cop';
+  if (val.includes('syriac')) return 'syc';
+
+  // Default to Ancient Greek
+  return 'grc';
 }
 
 export async function POST(request: Request) {
@@ -20,7 +49,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Parse pendingId as integer
+    // Parse pendingId as integer (PendingSubmission uses int for PendingID)
     const pendingIdInt = parseInt(pendingId, 10);
     if (isNaN(pendingIdInt)) {
       return NextResponse.json(
@@ -67,161 +96,130 @@ export async function POST(request: Request) {
       await transaction.begin();
 
       try {
-        // Helper function to generate random string IDs (database uses string IDs)
-        const generateId = (): string => {
-          return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-        };
-
-        // Helper function to get valid string ID or null
-        const getStringId = (value: any): string | null => {
-          if (!value || value === '') return null;
-          return String(value);
-        };
-
-        // 1. Create or get Author
+        // 1. Create or get Author (AuthorID is nvarchar(50))
         let authorId = getStringId(submissionData.authorId);
 
         if (!authorId && submissionData.newAuthorName) {
           const newAuthorId = generateId();
 
           await transaction.request()
-            .input('authorId', sql.NVarChar, newAuthorId)
+            .input('authorId', sql.NVarChar(50), newAuthorId)
             .input('name', sql.NVarChar, submissionData.newAuthorName)
             .input('lifespan', sql.NVarChar, submissionData.newAuthorLifespan || null)
             .input('bio', sql.NVarChar, submissionData.newAuthorBio || null)
             .query(`
-              INSERT INTO dbo.Authors (AuthorID, Name, Lifespan, Bio, updatedAt)
-              VALUES (@authorId, @name, @lifespan, @bio, GETDATE());
+              INSERT INTO dbo.Authors (AuthorID, Name, Lifespan, Bio, createdAt, updatedAt)
+              VALUES (@authorId, @name, @lifespan, @bio, GETDATE(), GETDATE());
             `);
           authorId = newAuthorId;
         }
 
-        // 2. Create or get Work
-        let workId = safeParseInt(submissionData.workId);
+        // 2. Create or get Work (WorkID is nvarchar(50))
+        let workId = getStringId(submissionData.workId);
 
         if (!workId && submissionData.newWorkTitle) {
-          // Convert year to January 1st date if provided
-          let publishedDateValue = null;
+          const newWorkId = generateId();
+
+          // Parse year from publishedDate label if available, default to year 100 AD
+          let publishedYear = 100;
           if (submissionData.newWorkPublishedYear) {
-            const year = parseInt(submissionData.newWorkPublishedYear);
-            if (!isNaN(year)) {
-              publishedDateValue = new Date(year, 0, 1); // January 1st of the year
-            }
+            const parsed = parseInt(submissionData.newWorkPublishedYear);
+            if (!isNaN(parsed)) publishedYear = parsed;
           }
 
-          // Get next WorkID (table doesn't use auto-increment)
-          const maxWorkIdResult = await transaction.request()
-            .query(`SELECT ISNULL(MAX(WorkID), 0) + 1 AS NextID FROM dbo.Works`);
-          const nextWorkId = maxWorkIdResult.recordset[0].NextID;
-
           await transaction.request()
-            .input('workId', sql.Int, nextWorkId)
-            .input('authorId', sql.Int, authorId)
+            .input('workId', sql.NVarChar(50), newWorkId)
+            .input('authorId', sql.NVarChar(50), authorId)
             .input('title', sql.NVarChar, submissionData.newWorkTitle)
             .input('summary', sql.NVarChar, submissionData.newWorkSummary || null)
             .input('publishedDateLabel', sql.NVarChar, submissionData.newWorkPublishedDate || null)
-            .input('publishedDate', sql.Date, publishedDateValue)
+            .input('publishedDate', sql.Date, new Date(publishedYear, 0, 1))
             .query(`
-              INSERT INTO dbo.Works (WorkID, AuthorID, Title, Summary, PublishedDateLabel, PublishedDate, updatedAt)
-              VALUES (@workId, @authorId, @title, @summary, @publishedDateLabel, @publishedDate, GETDATE());
+              INSERT INTO dbo.Work (WorkID, AuthorID, Title, Summary, PublishedDateLabel, PublishedDate, createdAt, updatedAt)
+              VALUES (@workId, @authorId, @title, @summary, @publishedDateLabel, @publishedDate, GETDATE(), GETDATE());
             `);
-          workId = nextWorkId;
+          workId = newWorkId;
         }
 
-        // 3. Create Evidence
-        // Use new values if provided, otherwise use selected existing values
+        // 3. Create Evidence (EvidenceID is nvarchar(50))
         const categoryValue = submissionData.category || submissionData.newCategory;
         const evidenceTypeValue = submissionData.evidenceType || submissionData.newEvidenceType;
-
-        // Get next EvidenceID (table doesn't use auto-increment)
-        const maxEvidenceIdResult = await transaction.request()
-          .query(`SELECT ISNULL(MAX(EvidenceID), 0) + 1 AS NextID FROM dbo.Evidence`);
-        const evidenceId = maxEvidenceIdResult.recordset[0].NextID;
+        const evidenceId = generateId();
 
         await transaction.request()
-          .input('evidenceId', sql.Int, evidenceId)
+          .input('evidenceId', sql.NVarChar(50), evidenceId)
           .input('title', sql.NVarChar, submissionData.evidenceTitle || null)
           .input('category', sql.NVarChar, categoryValue)
           .input('evidenceType', sql.NVarChar, evidenceTypeValue)
           .query(`
-            INSERT INTO dbo.Evidence (EvidenceID, Title, Category, EvidenceType, updatedAt)
-            VALUES (@evidenceId, @title, @category, @evidenceType, GETDATE());
+            INSERT INTO dbo.Evidence (EvidenceID, Title, Category, EvidenceType, createdAt, updatedAt)
+            VALUES (@evidenceId, @title, @category, @evidenceType, GETDATE(), GETDATE());
           `);
 
-        // 4. Create EvidencePassage
-        // Get next EvidencePassageID (table doesn't use auto-increment)
-        const maxPassageIdResult = await transaction.request()
-          .query(`SELECT ISNULL(MAX(EvidencePassageID), 0) + 1 AS NextID FROM dbo.EvidencePassage`);
-        const evidencePassageId = maxPassageIdResult.recordset[0].NextID;
+        // 4. Create EvidencePassage (EvidencePassageID is nvarchar(50))
+        const evidencePassageId = generateId();
 
         await transaction.request()
-          .input('evidencePassageId', sql.Int, evidencePassageId)
-          .input('evidenceId', sql.Int, evidenceId)
-          .input('workId', sql.Int, workId)
+          .input('evidencePassageId', sql.NVarChar(50), evidencePassageId)
+          .input('evidenceId', sql.NVarChar(50), evidenceId)
+          .input('workId', sql.NVarChar(50), workId)
           .input('passageText', sql.NVarChar, submissionData.passageText)
-          .input('originalLanguage', sql.NVarChar, submissionData.originalLanguage || null)
+          .input('originalLanguage', sql.NVarChar, getLanguageCode(submissionData.originalLanguage))
           .input('originalText', sql.NVarChar, submissionData.originalTranslationText || null)
           .input('reference', sql.NVarChar, submissionData.passageReference || null)
           .input('digitisedURL', sql.NVarChar, submissionData.digitisedURL || null)
           .query(`
-            INSERT INTO dbo.EvidencePassage (EvidencePassageID, EvidenceID, WorkID, PassageText, OriginalLanguage, OriginalTranslationText, Reference, DigitisedURL, updatedAt)
-            VALUES (@evidencePassageId, @evidenceId, @workId, @passageText, @originalLanguage, @originalText, @reference, @digitisedURL, GETDATE());
+            INSERT INTO dbo.EvidencePassage (EvidencePassageID, EvidenceID, WorkID, PassageText, OriginalLanguage, OriginalTranslationText, Reference, DigitisedURL, createdAt, updatedAt)
+            VALUES (@evidencePassageId, @evidenceId, @workId, @passageText, @originalLanguage, @originalText, @reference, @digitisedURL, GETDATE(), GETDATE());
           `);
 
-        // 5. Create or link manuscript if provided
-        let manuscriptId = safeParseInt(submissionData.manuscriptId);
+        // 5. Create or link manuscript if provided (ManuscriptID is nvarchar(50))
+        let manuscriptId = getStringId(submissionData.manuscriptId);
 
         // Create new manuscript if fields are provided
         if (!manuscriptId && submissionData.newManuscriptShelfmark && submissionData.newManuscriptLibrary) {
-          // Get next ManuscriptID (table doesn't use auto-increment)
-          const maxManuscriptIdResult = await transaction.request()
-            .query(`SELECT ISNULL(MAX(ManuscriptID), 0) + 1 AS NextID FROM dbo.Manuscript`);
-          const nextManuscriptId = maxManuscriptIdResult.recordset[0].NextID;
+          const newManuscriptId = generateId();
 
           await transaction.request()
-            .input('manuscriptId', sql.Int, nextManuscriptId)
+            .input('manuscriptId', sql.NVarChar(50), newManuscriptId)
             .input('title', sql.NVarChar, submissionData.newManuscriptTitle || null)
             .input('library', sql.NVarChar, submissionData.newManuscriptLibrary)
             .input('shelfmark', sql.NVarChar, submissionData.newManuscriptShelfmark)
             .input('date', sql.NVarChar, submissionData.newManuscriptDate || null)
             .input('digitisedURL', sql.NVarChar, submissionData.newManuscriptDigitisedURL || null)
             .query(`
-              INSERT INTO dbo.Manuscript (ManuscriptID, Title, Library, Shelfmark, Date, DigitisedURL, updatedAt)
-              VALUES (@manuscriptId, @title, @library, @shelfmark, @date, @digitisedURL, GETDATE());
+              INSERT INTO dbo.Manuscript (ManuscriptID, Title, Library, Shelfmark, Date, DigitisedURL, createdAt, updatedAt)
+              VALUES (@manuscriptId, @title, @library, @shelfmark, @date, @digitisedURL, GETDATE(), GETDATE());
             `);
-          manuscriptId = nextManuscriptId;
+          manuscriptId = newManuscriptId;
         }
 
-        // Link manuscript to evidence passage if we have one
+        // Link manuscript to evidence passage if we have one (WitnessID is nvarchar(50))
         if (manuscriptId) {
-          // Get next ManuscriptWitnessID (table doesn't use auto-increment)
-          const maxWitnessIdResult = await transaction.request()
-            .query(`SELECT ISNULL(MAX(ManuscriptWitnessID), 0) + 1 AS NextID FROM dbo.ManuscriptWitness`);
-          const nextWitnessId = maxWitnessIdResult.recordset[0].NextID;
+          const witnessId = generateId();
 
-          // Insert into ManuscriptWitness table which links passages to manuscripts
           await transaction.request()
-            .input('witnessId', sql.Int, nextWitnessId)
-            .input('evidencePassageId', sql.Int, evidencePassageId)
-            .input('manuscriptId', sql.Int, manuscriptId)
+            .input('witnessId', sql.NVarChar(50), witnessId)
+            .input('evidencePassageId', sql.NVarChar(50), evidencePassageId)
+            .input('manuscriptId', sql.NVarChar(50), manuscriptId)
             .input('imageURL', sql.NVarChar, submissionData.newManuscriptImageURL || null)
             .query(`
-              INSERT INTO dbo.ManuscriptWitness (ManuscriptWitnessID, EvidencePassageID, ManuscriptID, ImageURL, updatedAt)
-              VALUES (@witnessId, @evidencePassageId, @manuscriptId, @imageURL, GETDATE());
+              INSERT INTO dbo.ManuscriptWitness (WitnessID, EvidencePassageID, ManuscriptID, ImageURL)
+              VALUES (@witnessId, @evidencePassageId, @manuscriptId, @imageURL);
             `);
         }
 
-        // 6. Add tags
+        // 6. Add tags (TagID is nvarchar(50))
         if (submissionData.selectedTags && submissionData.selectedTags.length > 0) {
           for (const tag of submissionData.selectedTags) {
-            const tagId = safeParseInt(tag);
-            if (tagId !== null) {
+            const tagId = getStringId(tag);
+            if (tagId) {
               await transaction.request()
-                .input('evidenceId', sql.Int, evidenceId)
-                .input('tagId', sql.Int, tagId)
+                .input('evidenceId', sql.NVarChar(50), evidenceId)
+                .input('tagId', sql.NVarChar(50), tagId)
                 .query(`
-                  INSERT INTO dbo.EvidenceTag (EvidenceID, TagID, updatedAt)
-                  VALUES (@evidenceId, @tagId, GETDATE());
+                  INSERT INTO dbo.EvidenceTag (EvidenceID, TagID)
+                  VALUES (@evidenceId, @tagId);
                 `);
             }
           }
