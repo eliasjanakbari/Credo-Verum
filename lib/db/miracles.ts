@@ -1,59 +1,107 @@
 import { getPool } from './sql-helpers';
-import type { Miracle, MiracleCategory, GospelReference } from '../types/miracles';
+import type { EvidenceSource, MiracleCategoryType } from '../types/sources';
 
 /**
- * Helper function to group and transform SQL results into Miracle format
+ * Helper function to group and transform SQL results into EvidenceSource format
  */
-function groupSQLResults(rows: any[]): Miracle[] {
-  const miracleMap = new Map<string, Miracle>();
+function groupSQLResults(rows: any[]): EvidenceSource[] {
+  const evidenceMap = new Map<string, EvidenceSource>();
 
   for (const row of rows) {
-    if (!miracleMap.has(row.EvidenceID)) {
-      miracleMap.set(row.EvidenceID, {
+    if (!evidenceMap.has(row.EvidenceID)) {
+      // Create links array with passage digitised URL if available
+      const links: any[] = [];
+      if (row.PassageDigitisedURL) {
+        links.push({
+          label: 'Source to Text',
+          url: row.PassageDigitisedURL,
+          type: 'translation',
+        });
+      }
+
+      evidenceMap.set(row.EvidenceID, {
         id: row.EvidenceID,
-        category: row.Category as MiracleCategory,
-        name: row.Title,
-        description: row.Summary || '',
-        significance: '', // TheologicalSignificance table removed
+        category: row.Category as MiracleCategoryType,
+        author: row.AuthorName || 'Unknown',
+        authorLifespan: row.AuthorLifespan || undefined,
+        authorDescription: row.AuthorBio || '',
+        work: row.WorkTitle || 'Unknown',
+        workDescription: row.WorkSummary || '',
+        section: row.PassageReference || undefined,
+        date: row.PublishedDateLabel || '',
+        language: row.OriginalLanguage || 'Unknown',
+        quoteOriginal: row.OriginalTranslationText || '',
+        quoteEnglish: row.PassageText || '',
+        passageSummary: row.Summary || '',
+        evidenceType: row.EvidenceType,
         tags: [],
-        gospelReferences: [],
+        links: links,
+        manuscripts: [],
       });
     }
 
-    // Add gospel reference if present and not already added
-    const miracle = miracleMap.get(row.EvidenceID)!;
-    if (row.WorkTitle && !miracle.gospelReferences.some(g => g.gospel === row.WorkTitle.replace('Gospel of ', ''))) {
-      const gospelName = row.WorkTitle.replace('Gospel of ', '') as 'Matthew' | 'Mark' | 'Luke' | 'John';
-
-      miracle.gospelReferences.push({
-        gospel: gospelName,
-        reference: '', // Reference is not stored in the new schema
-        verse: row.PassageText || undefined,
+    // Add manuscript if present and not already added
+    const evidence = evidenceMap.get(row.EvidenceID)!;
+    if (row.ManuscriptShelfmark && !evidence.manuscripts.some(m => m.shelfmark === row.ManuscriptShelfmark)) {
+      evidence.manuscripts.push({
+        library: row.ManuscriptLibrary,
+        shelfmark: row.ManuscriptShelfmark,
+        date: row.ManuscriptDate,
+        digitizedUrl: row.ManuscriptDigitisedURL || '',
+        imageUrl: row.ManuscriptImageURL || undefined,
+        notes: undefined,
       });
+    }
+
+    // Add tag if present and not already added
+    if (row.Tag && !evidence.tags.includes(row.Tag)) {
+      evidence.tags.push(row.Tag);
     }
   }
 
-  return Array.from(miracleMap.values());
+  return Array.from(evidenceMap.values());
 }
 
 /**
  * Fetch all miracles from the database
  */
-export async function getAllMiracles(): Promise<Miracle[]> {
+export async function getAllMiracles(): Promise<EvidenceSource[]> {
   const pool = await getPool();
 
   const result = await pool.request().query(`
     SELECT
       e.EvidenceID,
-      e.Title,
+      e.Title as EvidenceTitle,
+      e.EvidenceType,
       e.Category,
       e.Summary,
+      e.createdAt as EvidenceDate,
       ep.PassageText as PassageText,
-      w.Title as WorkTitle
+      ep.OriginalLanguage,
+      ep.OriginalTranslationText,
+      ep.DigitisedURL as PassageDigitisedURL,
+      ep.Reference as PassageReference,
+      w.Title as WorkTitle,
+      w.Summary as WorkSummary,
+      w.PublishedDateLabel,
+      a.Name as AuthorName,
+      a.Lifespan as AuthorLifespan,
+      a.Bio as AuthorBio,
+      mw.ImageURL as ManuscriptImageURL,
+      m.Library as ManuscriptLibrary,
+      m.Shelfmark as ManuscriptShelfmark,
+      m.Date as ManuscriptDate,
+      m.DigitisedURL as ManuscriptDigitisedURL,
+      t.Tag
     FROM Evidence e
     LEFT JOIN EvidencePassage ep ON e.EvidenceID = ep.EvidenceID
     LEFT JOIN Work w ON ep.WorkID = w.WorkID
-    WHERE e.EvidenceType = 'Miracles'
+    LEFT JOIN Authors a ON w.AuthorID = a.AuthorID
+    LEFT JOIN ManuscriptWitness mw ON ep.EvidencePassageID = mw.EvidencePassageID
+    LEFT JOIN Manuscript m ON mw.ManuscriptID = m.ManuscriptID
+    LEFT JOIN EvidenceTag et ON e.EvidenceID = et.EvidenceID
+    LEFT JOIN Tag t ON et.TagID = t.TagID
+    WHERE e.EvidenceType = 'Miracle'
     ORDER BY e.createdAt ASC
   `);
 
@@ -63,7 +111,7 @@ export async function getAllMiracles(): Promise<Miracle[]> {
 /**
  * Fetch a single miracle by ID
  */
-export async function getMiracleById(id: string): Promise<Miracle | null> {
+export async function getMiracleById(id: string): Promise<EvidenceSource | null> {
   const pool = await getPool();
 
   const result = await pool.request()
@@ -71,15 +119,37 @@ export async function getMiracleById(id: string): Promise<Miracle | null> {
     .query(`
       SELECT
         e.EvidenceID,
-        e.Title,
+        e.Title as EvidenceTitle,
+        e.EvidenceType,
         e.Category,
         e.Summary,
+        e.createdAt as EvidenceDate,
         ep.PassageText as PassageText,
-        w.Title as WorkTitle
+        ep.OriginalLanguage,
+        ep.OriginalTranslationText,
+        ep.DigitisedURL as PassageDigitisedURL,
+        ep.Reference as PassageReference,
+        w.Title as WorkTitle,
+        w.Summary as WorkSummary,
+        w.PublishedDateLabel,
+        a.Name as AuthorName,
+        a.Lifespan as AuthorLifespan,
+        a.Bio as AuthorBio,
+        mw.ImageURL as ManuscriptImageURL,
+        m.Library as ManuscriptLibrary,
+        m.Shelfmark as ManuscriptShelfmark,
+        m.Date as ManuscriptDate,
+        m.DigitisedURL as ManuscriptDigitisedURL,
+        t.Tag
       FROM Evidence e
       LEFT JOIN EvidencePassage ep ON e.EvidenceID = ep.EvidenceID
       LEFT JOIN Work w ON ep.WorkID = w.WorkID
-      WHERE e.EvidenceID = @id AND e.EvidenceType = 'Gospel Account'
+      LEFT JOIN Authors a ON w.AuthorID = a.AuthorID
+      LEFT JOIN ManuscriptWitness mw ON ep.EvidencePassageID = mw.EvidencePassageID
+      LEFT JOIN Manuscript m ON mw.ManuscriptID = m.ManuscriptID
+      LEFT JOIN EvidenceTag et ON e.EvidenceID = et.EvidenceID
+      LEFT JOIN Tag t ON et.TagID = t.TagID
+      WHERE e.EvidenceID = @id AND e.EvidenceType = 'Miracles'
     `);
 
   const miracles = groupSQLResults(result.recordset);
@@ -89,7 +159,7 @@ export async function getMiracleById(id: string): Promise<Miracle | null> {
 /**
  * Fetch miracles by category
  */
-export async function getMiraclesByCategory(category: MiracleCategory): Promise<Miracle[]> {
+export async function getMiraclesByCategory(category: MiracleCategoryType): Promise<EvidenceSource[]> {
   const pool = await getPool();
 
   const result = await pool.request()
@@ -97,15 +167,37 @@ export async function getMiraclesByCategory(category: MiracleCategory): Promise<
     .query(`
       SELECT
         e.EvidenceID,
-        e.Title,
+        e.Title as EvidenceTitle,
+        e.EvidenceType,
         e.Category,
         e.Summary,
+        e.createdAt as EvidenceDate,
         ep.PassageText as PassageText,
-        w.Title as WorkTitle
+        ep.OriginalLanguage,
+        ep.OriginalTranslationText,
+        ep.DigitisedURL as PassageDigitisedURL,
+        ep.Reference as PassageReference,
+        w.Title as WorkTitle,
+        w.Summary as WorkSummary,
+        w.PublishedDateLabel,
+        a.Name as AuthorName,
+        a.Lifespan as AuthorLifespan,
+        a.Bio as AuthorBio,
+        mw.ImageURL as ManuscriptImageURL,
+        m.Library as ManuscriptLibrary,
+        m.Shelfmark as ManuscriptShelfmark,
+        m.Date as ManuscriptDate,
+        m.DigitisedURL as ManuscriptDigitisedURL,
+        t.Tag
       FROM Evidence e
       LEFT JOIN EvidencePassage ep ON e.EvidenceID = ep.EvidenceID
       LEFT JOIN Work w ON ep.WorkID = w.WorkID
-      WHERE e.Category = @category AND e.EvidenceType = 'Gospel Account'
+      LEFT JOIN Authors a ON w.AuthorID = a.AuthorID
+      LEFT JOIN ManuscriptWitness mw ON ep.EvidencePassageID = mw.EvidencePassageID
+      LEFT JOIN Manuscript m ON mw.ManuscriptID = m.ManuscriptID
+      LEFT JOIN EvidenceTag et ON e.EvidenceID = et.EvidenceID
+      LEFT JOIN Tag t ON et.TagID = t.TagID
+      WHERE e.Category = @category AND e.EvidenceType = 'Miracles'
       ORDER BY e.createdAt ASC
     `);
 
@@ -115,7 +207,7 @@ export async function getMiraclesByCategory(category: MiracleCategory): Promise<
 /**
  * Search miracles by text (searches in title and summary)
  */
-export async function searchMiracles(searchTerm: string): Promise<Miracle[]> {
+export async function searchMiracles(searchTerm: string): Promise<EvidenceSource[]> {
   const pool = await getPool();
 
   const result = await pool.request()
@@ -123,43 +215,38 @@ export async function searchMiracles(searchTerm: string): Promise<Miracle[]> {
     .query(`
       SELECT
         e.EvidenceID,
-        e.Title,
+        e.Title as EvidenceTitle,
+        e.EvidenceType,
         e.Category,
         e.Summary,
+        e.createdAt as EvidenceDate,
         ep.PassageText as PassageText,
-        w.Title as WorkTitle
+        ep.OriginalLanguage,
+        ep.OriginalTranslationText,
+        ep.DigitisedURL as PassageDigitisedURL,
+        ep.Reference as PassageReference,
+        w.Title as WorkTitle,
+        w.Summary as WorkSummary,
+        w.PublishedDateLabel,
+        a.Name as AuthorName,
+        a.Lifespan as AuthorLifespan,
+        a.Bio as AuthorBio,
+        mw.ImageURL as ManuscriptImageURL,
+        m.Library as ManuscriptLibrary,
+        m.Shelfmark as ManuscriptShelfmark,
+        m.Date as ManuscriptDate,
+        m.DigitisedURL as ManuscriptDigitisedURL,
+        t.Tag
       FROM Evidence e
       LEFT JOIN EvidencePassage ep ON e.EvidenceID = ep.EvidenceID
       LEFT JOIN Work w ON ep.WorkID = w.WorkID
-      WHERE e.EvidenceType = 'Miracles'
+      LEFT JOIN Authors a ON w.AuthorID = a.AuthorID
+      LEFT JOIN ManuscriptWitness mw ON ep.EvidencePassageID = mw.EvidencePassageID
+      LEFT JOIN Manuscript m ON mw.ManuscriptID = m.ManuscriptID
+      LEFT JOIN EvidenceTag et ON e.EvidenceID = et.EvidenceID
+      LEFT JOIN Tag t ON et.TagID = t.TagID
+      WHERE e.EvidenceType = 'Miracle'
         AND (e.Title LIKE @search OR e.Summary LIKE @search)
-      ORDER BY e.createdAt ASC
-    `);
-
-  return groupSQLResults(result.recordset);
-}
-
-/**
- * Fetch miracles by gospel
- */
-export async function getMiraclesByGospel(gospel: 'Matthew' | 'Mark' | 'Luke' | 'John'): Promise<Miracle[]> {
-  const pool = await getPool();
-
-  const result = await pool.request()
-    .input('gospel', `Gospel of ${gospel}`)
-    .query(`
-      SELECT DISTINCT
-        e.EvidenceID,
-        e.Title,
-        e.Category,
-        e.Summary,
-        ep.PassageText as PassageText,
-        w.Title as WorkTitle
-      FROM Evidence e
-      LEFT JOIN EvidencePassage ep ON e.EvidenceID = ep.EvidenceID
-      LEFT JOIN Work w ON ep.WorkID = w.WorkID
-      WHERE e.EvidenceType = 'Miracles'
-        AND w.Title = @gospel
       ORDER BY e.createdAt ASC
     `);
 

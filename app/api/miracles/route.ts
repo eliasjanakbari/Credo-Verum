@@ -1,12 +1,11 @@
 import { NextResponse } from 'next/server';
-import { getAllMiracles, getMiraclesByCategory, getMiraclesByGospel, searchMiracles } from '@/lib/db/miracles';
-import type { MiracleCategory } from '@/lib/types/miracles';
+import { getAllMiracles, getMiraclesByCategory, searchMiracles } from '@/lib/db/miracles';
+import type { MiracleCategoryType } from '@/lib/types/sources';
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const category = searchParams.get('category') as MiracleCategory | null;
-    const gospel = searchParams.get('gospel') as 'Matthew' | 'Mark' | 'Luke' | 'John' | null;
+    const category = searchParams.get('category') as MiracleCategoryType | null;
     const search = searchParams.get('search');
 
     let miracles;
@@ -14,9 +13,6 @@ export async function GET(request: Request) {
     if (search) {
       // Search miracles by text
       miracles = await searchMiracles(search);
-    } else if (gospel) {
-      // Filter by gospel
-      miracles = await getMiraclesByGospel(gospel);
     } else if (category) {
       // Filter by category
       miracles = await getMiraclesByCategory(category);
