@@ -5,10 +5,11 @@ import sql from 'mssql';
 export async function POST(request: Request) {
   try {
     const formData = await request.json();
+    const { draftId, ...submissionFormData } = formData;
     const pool = await getPool();
 
     // Store the entire form data as JSON string in the PendingSubmission table
-    const submissionDataJson = JSON.stringify(formData);
+    const submissionDataJson = JSON.stringify(submissionFormData);
 
     const result = await pool.request()
       .input('submissionData', sql.NVarChar, submissionDataJson)
@@ -19,6 +20,13 @@ export async function POST(request: Request) {
       `);
 
     const pendingId = result.recordset[0].PendingID;
+
+    // Delete the draft if it was submitted from a saved draft
+    if (draftId) {
+      await pool.request()
+        .input('draftId', sql.Int, draftId)
+        .query(`DELETE FROM SubmissionDraft WHERE DraftID = @draftId`);
+    }
 
     return NextResponse.json({
       success: true,

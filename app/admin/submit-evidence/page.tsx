@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 interface Author {
@@ -36,6 +36,7 @@ interface Tag {
 
 function SubmitEvidenceContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const urlDraftId = searchParams.get('draftId');
 
   const [authors, setAuthors] = useState<Author[]>([]);
@@ -306,11 +307,14 @@ function SubmitEvidenceContent() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, draftId }),
       });
 
       if (response.ok) {
         alert('Evidence submitted successfully! It will be reviewed before publishing.');
+        // Clear draft from localStorage and reset draftId
+        localStorage.removeItem(DRAFT_STORAGE_KEY);
+        setDraftId(null);
         // Reset form
         setFormData({
           authorId: '',
@@ -341,6 +345,7 @@ function SubmitEvidenceContent() {
           newManuscriptImageURL: '',
           selectedTags: [],
         });
+        router.push('/admin');
       } else {
         alert('Error submitting evidence. Please try again.');
       }
