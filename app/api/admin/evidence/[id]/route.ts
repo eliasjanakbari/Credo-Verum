@@ -19,6 +19,7 @@ export async function PUT(
       OriginalTranslationText,
       Reference,
       DigitisedURL,
+      selectedTags,
     } = await request.json();
 
     const pool = await getPool();
@@ -59,6 +60,30 @@ export async function PUT(
               updatedAt = GETDATE()
           WHERE EvidencePassageID = @passageId
         `);
+    }
+
+    // Update tags if provided
+    if (selectedTags !== undefined) {
+      // First, delete all existing tags for this evidence
+      await pool.request()
+        .input('evidenceId', sql.NVarChar(50), evidenceId)
+        .query(`
+          DELETE FROM dbo.EvidenceTag
+          WHERE EvidenceID = @evidenceId
+        `);
+
+      // Then, add the new tags
+      if (selectedTags && selectedTags.length > 0) {
+        for (const tagId of selectedTags) {
+          await pool.request()
+            .input('evidenceId', sql.NVarChar(50), evidenceId)
+            .input('tagId', sql.NVarChar(50), tagId)
+            .query(`
+              INSERT INTO dbo.EvidenceTag (EvidenceID, TagID)
+              VALUES (@evidenceId, @tagId)
+            `);
+        }
+      }
     }
 
     return NextResponse.json({ success: true });

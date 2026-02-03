@@ -15,6 +15,7 @@ export default function ManageAuthors() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [editingAuthor, setEditingAuthor] = useState<Author | null>(null);
+  const [creatingNew, setCreatingNew] = useState(false);
   const [formData, setFormData] = useState({
     Name: '',
     Lifespan: '',
@@ -37,8 +38,19 @@ export default function ManageAuthors() {
     }
   };
 
+  const handleCreate = () => {
+    setCreatingNew(true);
+    setEditingAuthor(null);
+    setFormData({
+      Name: '',
+      Lifespan: '',
+      Bio: '',
+    });
+  };
+
   const handleEdit = (author: Author) => {
     setEditingAuthor(author);
+    setCreatingNew(false);
     setFormData({
       Name: author.Name,
       Lifespan: author.Lifespan || '',
@@ -46,29 +58,47 @@ export default function ManageAuthors() {
     });
   };
 
-  const handleUpdate = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editingAuthor) return;
 
     try {
-      const response = await fetch(`/api/admin/authors/${editingAuthor.AuthorID}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+      if (creatingNew) {
+        const response = await fetch('/api/admin/authors', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData),
+        });
 
-      if (response.ok) {
-        alert('Author updated successfully!');
-        setEditingAuthor(null);
-        fetchAuthors();
-      } else {
-        alert('Error updating author');
+        if (response.ok) {
+          alert('Author created successfully!');
+          setCreatingNew(false);
+          fetchAuthors();
+        } else {
+          const result = await response.json();
+          alert(`Error creating author: ${result.error || 'Unknown error'}`);
+        }
+      } else if (editingAuthor) {
+        const response = await fetch(`/api/admin/authors/${editingAuthor.AuthorID}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData),
+        });
+
+        if (response.ok) {
+          alert('Author updated successfully!');
+          setEditingAuthor(null);
+          fetchAuthors();
+        } else {
+          alert('Error updating author');
+        }
       }
     } catch (error) {
-      console.error('Error updating author:', error);
-      alert('Error updating author');
+      console.error('Error saving author:', error);
+      alert('Error saving author');
     }
   };
 
@@ -77,7 +107,6 @@ export default function ManageAuthors() {
       return;
     }
 
-    // Small delay to ensure confirm dialog fully closes
     await new Promise(resolve => setTimeout(resolve, 100));
 
     try {
@@ -96,6 +125,11 @@ export default function ManageAuthors() {
       console.error('Error deleting author:', error);
       alert('Error deleting author');
     }
+  };
+
+  const closeModal = () => {
+    setEditingAuthor(null);
+    setCreatingNew(false);
   };
 
   const filteredAuthors = authors.filter((author) =>
@@ -121,7 +155,15 @@ export default function ManageAuthors() {
           </Link>
         </div>
 
-        <h1 className="text-3xl font-extrabold mb-8">Manage Authors</h1>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-extrabold">Manage Authors</h1>
+          <button
+            onClick={handleCreate}
+            className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+          >
+            + New Author
+          </button>
+        </div>
 
         {/* Search */}
         <div className="mb-6">
@@ -134,13 +176,15 @@ export default function ManageAuthors() {
           />
         </div>
 
-        {/* Edit Modal */}
-        {editingAuthor && (
+        {/* Create/Edit Modal */}
+        {(editingAuthor || creatingNew) && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-              <h2 className="text-2xl font-bold mb-4">Edit Author</h2>
+              <h2 className="text-2xl font-bold mb-4">
+                {creatingNew ? 'Create New Author' : 'Edit Author'}
+              </h2>
 
-              <form onSubmit={handleUpdate} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium mb-2">Name *</label>
                   <input
@@ -149,6 +193,7 @@ export default function ManageAuthors() {
                     value={formData.Name}
                     onChange={(e) => setFormData({ ...formData, Name: e.target.value })}
                     className="w-full px-3 py-2 border border-slate-300 rounded-md"
+                    placeholder="e.g., Tacitus"
                   />
                 </div>
 
@@ -159,6 +204,7 @@ export default function ManageAuthors() {
                     value={formData.Lifespan}
                     onChange={(e) => setFormData({ ...formData, Lifespan: e.target.value })}
                     className="w-full px-3 py-2 border border-slate-300 rounded-md"
+                    placeholder="e.g., c. 56 - c. 120 AD"
                   />
                 </div>
 
@@ -169,6 +215,7 @@ export default function ManageAuthors() {
                     onChange={(e) => setFormData({ ...formData, Bio: e.target.value })}
                     rows={6}
                     className="w-full px-3 py-2 border border-slate-300 rounded-md"
+                    placeholder="Brief biography of the author..."
                   />
                 </div>
 
@@ -177,11 +224,11 @@ export default function ManageAuthors() {
                     type="submit"
                     className="px-6 py-2 bg-sky-600 text-white rounded-md hover:bg-sky-700"
                   >
-                    Save Changes
+                    {creatingNew ? 'Create' : 'Save Changes'}
                   </button>
                   <button
                     type="button"
-                    onClick={() => setEditingAuthor(null)}
+                    onClick={closeModal}
                     className="px-6 py-2 bg-slate-200 text-slate-700 rounded-md hover:bg-slate-300"
                   >
                     Cancel

@@ -3,6 +3,11 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
+interface Tag {
+  TagID: string;
+  Tag: string;
+}
+
 interface Evidence {
   EvidenceID: string;
   Title: string;
@@ -20,6 +25,7 @@ interface Evidence {
   WorkTitle: string;
   AuthorID: string;
   AuthorName: string;
+  tags: Tag[];
 }
 
 const EVIDENCE_TYPES = ['Gospel Account', 'Miracle', 'Quote', 'Reference', 'Manuscript'];
@@ -27,6 +33,7 @@ const CATEGORIES = ['Roman', 'Jewish', 'Christian', 'Nature', 'Healing', 'Resurr
 
 export default function ManageEvidence() {
   const [evidence, setEvidence] = useState<Evidence[]>([]);
+  const [allTags, setAllTags] = useState<Tag[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('');
@@ -42,10 +49,12 @@ export default function ManageEvidence() {
     OriginalTranslationText: '',
     Reference: '',
     DigitisedURL: '',
+    selectedTags: [] as string[],
   });
 
   useEffect(() => {
     fetchEvidence();
+    fetchTags();
   }, []);
 
   const fetchEvidence = async () => {
@@ -57,6 +66,16 @@ export default function ManageEvidence() {
     } catch (error) {
       console.error('Error fetching evidence:', error);
       setLoading(false);
+    }
+  };
+
+  const fetchTags = async () => {
+    try {
+      const response = await fetch('/api/admin/tags');
+      const data = await response.json();
+      setAllTags(data);
+    } catch (error) {
+      console.error('Error fetching tags:', error);
     }
   };
 
@@ -73,7 +92,17 @@ export default function ManageEvidence() {
       OriginalTranslationText: item.OriginalTranslationText || '',
       Reference: item.Reference || '',
       DigitisedURL: item.DigitisedURL || '',
+      selectedTags: item.tags ? item.tags.map(t => t.TagID) : [],
     });
+  };
+
+  const handleTagToggle = (tagId: string) => {
+    setFormData(prev => ({
+      ...prev,
+      selectedTags: prev.selectedTags.includes(tagId)
+        ? prev.selectedTags.filter(id => id !== tagId)
+        : [...prev.selectedTags, tagId],
+    }));
   };
 
   const handleUpdate = async (e: React.FormEvent) => {
@@ -108,7 +137,6 @@ export default function ManageEvidence() {
       return;
     }
 
-    // Small delay to ensure confirm dialog fully closes
     await new Promise(resolve => setTimeout(resolve, 100));
 
     try {
@@ -307,6 +335,36 @@ export default function ManageEvidence() {
                   />
                 </div>
 
+                {/* Tags Section */}
+                <div>
+                  <label className="block text-sm font-medium mb-2">Tags</label>
+                  <div className="flex flex-wrap gap-2 p-3 border border-slate-300 rounded-md bg-slate-50">
+                    {allTags.length === 0 ? (
+                      <p className="text-slate-500 text-sm">No tags available</p>
+                    ) : (
+                      allTags.map((tag) => (
+                        <button
+                          key={tag.TagID}
+                          type="button"
+                          onClick={() => handleTagToggle(tag.TagID)}
+                          className={`px-3 py-1 rounded-full text-sm transition-colors ${
+                            formData.selectedTags.includes(tag.TagID)
+                              ? 'bg-sky-600 text-white'
+                              : 'bg-white border border-slate-300 text-slate-700 hover:border-sky-400'
+                          }`}
+                        >
+                          {tag.Tag}
+                        </button>
+                      ))
+                    )}
+                  </div>
+                  {formData.selectedTags.length > 0 && (
+                    <p className="text-sm text-slate-500 mt-1">
+                      {formData.selectedTags.length} tag{formData.selectedTags.length !== 1 ? 's' : ''} selected
+                    </p>
+                  )}
+                </div>
+
                 <div className="flex gap-4">
                   <button
                     type="submit"
@@ -369,6 +427,20 @@ export default function ManageEvidence() {
                         {item.PassageText.substring(0, 300)}
                         {item.PassageText.length > 300 && '...'}
                       </p>
+                    )}
+
+                    {/* Display tags */}
+                    {item.tags && item.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mb-2">
+                        {item.tags.map((tag) => (
+                          <span
+                            key={tag.TagID}
+                            className="px-2 py-0.5 bg-sky-100 text-sky-800 rounded text-xs"
+                          >
+                            {tag.Tag}
+                          </span>
+                        ))}
+                      </div>
                     )}
 
                     <p className="text-sm text-slate-500">ID: {item.EvidenceID}</p>

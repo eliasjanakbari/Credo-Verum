@@ -1,5 +1,10 @@
 import { NextResponse } from 'next/server';
 import { getPool } from '@/lib/db/sql-helpers';
+import sql from 'mssql';
+
+function generateId(): string {
+  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+}
 
 export async function GET() {
   try {
@@ -46,5 +51,41 @@ export async function GET() {
   } catch (error) {
     console.error('Error fetching manuscripts:', error);
     return NextResponse.json([], { status: 200 });
+  }
+}
+
+export async function POST(request: Request) {
+  try {
+    const { Title, Library, Shelfmark, Date, DigitisedURL } = await request.json();
+
+    if (!Library || !Shelfmark) {
+      return NextResponse.json(
+        { success: false, error: 'Library and Shelfmark are required' },
+        { status: 400 }
+      );
+    }
+
+    const pool = await getPool();
+    const manuscriptId = generateId();
+
+    await pool.request()
+      .input('manuscriptId', sql.NVarChar(50), manuscriptId)
+      .input('title', sql.NVarChar, Title || null)
+      .input('library', sql.NVarChar, Library)
+      .input('shelfmark', sql.NVarChar, Shelfmark)
+      .input('date', sql.NVarChar, Date || null)
+      .input('digitisedURL', sql.NVarChar, DigitisedURL || null)
+      .query(`
+        INSERT INTO dbo.Manuscript (ManuscriptID, Title, Library, Shelfmark, Date, DigitisedURL, createdAt, updatedAt)
+        VALUES (@manuscriptId, @title, @library, @shelfmark, @date, @digitisedURL, GETDATE(), GETDATE())
+      `);
+
+    return NextResponse.json({ success: true, manuscriptId });
+  } catch (error) {
+    console.error('Error creating manuscript:', error);
+    return NextResponse.json(
+      { success: false, error: 'Failed to create manuscript' },
+      { status: 500 }
+    );
   }
 }

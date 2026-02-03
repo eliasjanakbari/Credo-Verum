@@ -23,11 +23,13 @@ export default function ManageWorks() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [editingWork, setEditingWork] = useState<Work | null>(null);
+  const [creatingNew, setCreatingNew] = useState(false);
   const [formData, setFormData] = useState({
     Title: '',
     AuthorID: '',
     Summary: '',
     PublishedDateLabel: '',
+    PublishedYear: '',
   });
 
   useEffect(() => {
@@ -57,40 +59,72 @@ export default function ManageWorks() {
     }
   };
 
+  const handleCreate = () => {
+    setCreatingNew(true);
+    setEditingWork(null);
+    setFormData({
+      Title: '',
+      AuthorID: '',
+      Summary: '',
+      PublishedDateLabel: '',
+      PublishedYear: '',
+    });
+  };
+
   const handleEdit = (work: Work) => {
     setEditingWork(work);
+    setCreatingNew(false);
     setFormData({
       Title: work.Title,
       AuthorID: work.AuthorID || '',
       Summary: work.Summary || '',
       PublishedDateLabel: work.PublishedDateLabel || '',
+      PublishedYear: '',
     });
   };
 
-  const handleUpdate = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editingWork) return;
 
     try {
-      const response = await fetch(`/api/admin/works/${editingWork.WorkID}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+      if (creatingNew) {
+        const response = await fetch('/api/admin/works', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData),
+        });
 
-      if (response.ok) {
-        alert('Work updated successfully!');
-        setEditingWork(null);
-        fetchWorks();
-      } else {
-        const result = await response.json();
-        alert(`Error updating work: ${result.error || 'Unknown error'}`);
+        if (response.ok) {
+          alert('Work created successfully!');
+          setCreatingNew(false);
+          fetchWorks();
+        } else {
+          const result = await response.json();
+          alert(`Error creating work: ${result.error || 'Unknown error'}`);
+        }
+      } else if (editingWork) {
+        const response = await fetch(`/api/admin/works/${editingWork.WorkID}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData),
+        });
+
+        if (response.ok) {
+          alert('Work updated successfully!');
+          setEditingWork(null);
+          fetchWorks();
+        } else {
+          const result = await response.json();
+          alert(`Error updating work: ${result.error || 'Unknown error'}`);
+        }
       }
     } catch (error) {
-      console.error('Error updating work:', error);
-      alert('Error updating work');
+      console.error('Error saving work:', error);
+      alert('Error saving work');
     }
   };
 
@@ -99,7 +133,6 @@ export default function ManageWorks() {
       return;
     }
 
-    // Small delay to ensure confirm dialog fully closes
     await new Promise(resolve => setTimeout(resolve, 100));
 
     try {
@@ -118,6 +151,11 @@ export default function ManageWorks() {
       console.error('Error deleting work:', error);
       alert('Error deleting work');
     }
+  };
+
+  const closeModal = () => {
+    setEditingWork(null);
+    setCreatingNew(false);
   };
 
   const filteredWorks = works.filter((work) =>
@@ -144,7 +182,15 @@ export default function ManageWorks() {
           </Link>
         </div>
 
-        <h1 className="text-3xl font-extrabold mb-8">Manage Works</h1>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-extrabold">Manage Works</h1>
+          <button
+            onClick={handleCreate}
+            className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+          >
+            + New Work
+          </button>
+        </div>
 
         {/* Search */}
         <div className="mb-6">
@@ -157,13 +203,15 @@ export default function ManageWorks() {
           />
         </div>
 
-        {/* Edit Modal */}
-        {editingWork && (
+        {/* Create/Edit Modal */}
+        {(editingWork || creatingNew) && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-              <h2 className="text-2xl font-bold mb-4">Edit Work</h2>
+              <h2 className="text-2xl font-bold mb-4">
+                {creatingNew ? 'Create New Work' : 'Edit Work'}
+              </h2>
 
-              <form onSubmit={handleUpdate} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium mb-2">Title *</label>
                   <input
@@ -172,6 +220,7 @@ export default function ManageWorks() {
                     value={formData.Title}
                     onChange={(e) => setFormData({ ...formData, Title: e.target.value })}
                     className="w-full px-3 py-2 border border-slate-300 rounded-md"
+                    placeholder="e.g., Annals"
                   />
                 </div>
 
@@ -191,15 +240,29 @@ export default function ManageWorks() {
                   </select>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium mb-2">Published Date Label</label>
-                  <input
-                    type="text"
-                    placeholder="e.g., c. 100 AD"
-                    value={formData.PublishedDateLabel}
-                    onChange={(e) => setFormData({ ...formData, PublishedDateLabel: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-md"
-                  />
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Published Date Label</label>
+                    <input
+                      type="text"
+                      placeholder="e.g., c. 100 AD"
+                      value={formData.PublishedDateLabel}
+                      onChange={(e) => setFormData({ ...formData, PublishedDateLabel: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-300 rounded-md"
+                    />
+                  </div>
+                  {creatingNew && (
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Published Year (for sorting)</label>
+                      <input
+                        type="number"
+                        placeholder="e.g., 100"
+                        value={formData.PublishedYear}
+                        onChange={(e) => setFormData({ ...formData, PublishedYear: e.target.value })}
+                        className="w-full px-3 py-2 border border-slate-300 rounded-md"
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div>
@@ -209,6 +272,7 @@ export default function ManageWorks() {
                     onChange={(e) => setFormData({ ...formData, Summary: e.target.value })}
                     rows={6}
                     className="w-full px-3 py-2 border border-slate-300 rounded-md"
+                    placeholder="Brief description of the work..."
                   />
                 </div>
 
@@ -217,11 +281,11 @@ export default function ManageWorks() {
                     type="submit"
                     className="px-6 py-2 bg-sky-600 text-white rounded-md hover:bg-sky-700"
                   >
-                    Save Changes
+                    {creatingNew ? 'Create' : 'Save Changes'}
                   </button>
                   <button
                     type="button"
-                    onClick={() => setEditingWork(null)}
+                    onClick={closeModal}
                     className="px-6 py-2 bg-slate-200 text-slate-700 rounded-md hover:bg-slate-300"
                   >
                     Cancel

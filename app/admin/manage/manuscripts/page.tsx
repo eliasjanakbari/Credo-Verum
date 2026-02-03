@@ -28,6 +28,7 @@ export default function ManageManuscripts() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [editingManuscript, setEditingManuscript] = useState<Manuscript | null>(null);
+  const [creatingNew, setCreatingNew] = useState(false);
   const [editingWitness, setEditingWitness] = useState<Witness | null>(null);
   const [expandedManuscript, setExpandedManuscript] = useState<string | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -56,8 +57,21 @@ export default function ManageManuscripts() {
     }
   };
 
+  const handleCreate = () => {
+    setCreatingNew(true);
+    setEditingManuscript(null);
+    setFormData({
+      Title: '',
+      Library: '',
+      Shelfmark: '',
+      Date: '',
+      DigitisedURL: '',
+    });
+  };
+
   const handleEdit = (manuscript: Manuscript) => {
     setEditingManuscript(manuscript);
+    setCreatingNew(false);
     setFormData({
       Title: manuscript.Title || '',
       Library: manuscript.Library || '',
@@ -72,31 +86,54 @@ export default function ManageManuscripts() {
     setWitnessImageURL(witness.ImageURL || '');
   };
 
-  const handleUpdate = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editingManuscript) return;
 
     try {
-      const response = await fetch(`/api/admin/manuscripts/${editingManuscript.ManuscriptID}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+      if (creatingNew) {
+        const response = await fetch('/api/admin/manuscripts', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData),
+        });
 
-      if (response.ok) {
-        alert('Manuscript updated successfully!');
-        setEditingManuscript(null);
-        fetchManuscripts();
-      } else {
-        const result = await response.json();
-        alert(`Error updating manuscript: ${result.error || 'Unknown error'}`);
+        if (response.ok) {
+          alert('Manuscript created successfully!');
+          setCreatingNew(false);
+          fetchManuscripts();
+        } else {
+          const result = await response.json();
+          alert(`Error creating manuscript: ${result.error || 'Unknown error'}`);
+        }
+      } else if (editingManuscript) {
+        const response = await fetch(`/api/admin/manuscripts/${editingManuscript.ManuscriptID}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData),
+        });
+
+        if (response.ok) {
+          alert('Manuscript updated successfully!');
+          setEditingManuscript(null);
+          fetchManuscripts();
+        } else {
+          const result = await response.json();
+          alert(`Error updating manuscript: ${result.error || 'Unknown error'}`);
+        }
       }
     } catch (error) {
-      console.error('Error updating manuscript:', error);
-      alert('Error updating manuscript');
+      console.error('Error saving manuscript:', error);
+      alert('Error saving manuscript');
     }
+  };
+
+  const closeModal = () => {
+    setEditingManuscript(null);
+    setCreatingNew(false);
   };
 
   const handleUpdateWitness = async (e: React.FormEvent) => {
@@ -236,7 +273,15 @@ export default function ManageManuscripts() {
           </Link>
         </div>
 
-        <h1 className="text-3xl font-extrabold mb-8">Manage Manuscripts</h1>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-extrabold">Manage Manuscripts</h1>
+          <button
+            onClick={handleCreate}
+            className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+          >
+            + New Manuscript
+          </button>
+        </div>
 
         {/* Search */}
         <div className="mb-6">
@@ -249,13 +294,15 @@ export default function ManageManuscripts() {
           />
         </div>
 
-        {/* Edit Manuscript Modal */}
-        {editingManuscript && (
+        {/* Create/Edit Manuscript Modal */}
+        {(editingManuscript || creatingNew) && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-              <h2 className="text-2xl font-bold mb-4">Edit Manuscript</h2>
+              <h2 className="text-2xl font-bold mb-4">
+                {creatingNew ? 'Create New Manuscript' : 'Edit Manuscript'}
+              </h2>
 
-              <form onSubmit={handleUpdate} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium mb-2">Title</label>
                   <input
@@ -317,11 +364,11 @@ export default function ManageManuscripts() {
                     type="submit"
                     className="px-6 py-2 bg-sky-600 text-white rounded-md hover:bg-sky-700"
                   >
-                    Save Changes
+                    {creatingNew ? 'Create' : 'Save Changes'}
                   </button>
                   <button
                     type="button"
-                    onClick={() => setEditingManuscript(null)}
+                    onClick={closeModal}
                     className="px-6 py-2 bg-slate-200 text-slate-700 rounded-md hover:bg-slate-300"
                   >
                     Cancel

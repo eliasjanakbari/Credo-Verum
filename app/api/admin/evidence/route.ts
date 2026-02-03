@@ -4,6 +4,8 @@ import { getPool } from '@/lib/db/sql-helpers';
 export async function GET() {
   try {
     const pool = await getPool();
+
+    // Fetch evidence with related data
     const result = await pool.request().query(`
       SELECT
         e.EvidenceID,
@@ -29,6 +31,22 @@ export async function GET() {
       ORDER BY e.createdAt DESC
     `);
 
+    // Fetch tags for all evidence
+    const tagsResult = await pool.request().query(`
+      SELECT et.EvidenceID, t.TagID, t.Tag
+      FROM dbo.EvidenceTag et
+      JOIN dbo.Tag t ON et.TagID = t.TagID
+    `);
+
+    // Group tags by evidence
+    const tagsMap = new Map();
+    for (const tag of tagsResult.recordset) {
+      if (!tagsMap.has(tag.EvidenceID)) {
+        tagsMap.set(tag.EvidenceID, []);
+      }
+      tagsMap.get(tag.EvidenceID).push({ TagID: tag.TagID, Tag: tag.Tag });
+    }
+
     // Group by evidence (since there might be multiple passages per evidence)
     const evidenceMap = new Map();
     for (const row of result.recordset) {
@@ -50,6 +68,7 @@ export async function GET() {
           WorkTitle: row.WorkTitle,
           AuthorID: row.AuthorID,
           AuthorName: row.AuthorName,
+          tags: tagsMap.get(row.EvidenceID) || [],
         });
       }
     }
