@@ -1,13 +1,8 @@
-'use client';
-
-import { useState } from 'react';
 import Link from 'next/link';
 
 type EntityType = 'authors' | 'works' | 'manuscripts' | 'tags' | 'evidence';
 
 export default function ManageData() {
-  const [selectedEntity, setSelectedEntity] = useState<EntityType | null>(null);
-
   const entities = [
     {
       type: 'authors' as EntityType,
@@ -63,24 +58,6 @@ export default function ManageData() {
               <p className="text-slate-600">{entity.description}</p>
             </Link>
           ))}
-        </div>
-
-        <div className="mt-12 p-6 bg-amber-50 border-2 border-amber-200 rounded-lg">
-          <h2 className="text-xl font-bold mb-2">⚠️ Important Note</h2>
-          <p className="text-slate-700">
-            The CRUD (Create, Read, Update, Delete) pages for each entity type are
-            placeholders. You'll need to implement the detailed management interfaces
-            for each entity type based on your specific requirements.
-          </p>
-          <p className="text-slate-700 mt-2">
-            Each management page should include:
-          </p>
-          <ul className="list-disc list-inside text-slate-700 mt-2 space-y-1">
-            <li>List view with pagination and search</li>
-            <li>Edit forms for updating existing records</li>
-            <li>Delete functionality with confirmation</li>
-            <li>Proper error handling and validation</li>
-          </ul>
         </div>
       </div>
     </main>

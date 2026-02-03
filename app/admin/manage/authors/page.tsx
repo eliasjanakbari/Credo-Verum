@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
 interface Author {
-  AuthorID: number;
+  AuthorID: string;
   Name: string;
   Lifespan: string;
   Bio: string;
@@ -72,7 +72,7 @@ export default function ManageAuthors() {
     }
   };
 
-  const handleDelete = async (authorId: number, authorName: string) => {
+  const handleDelete = async (authorId: string, authorName: string) => {
     if (!confirm(`Are you sure you want to delete "${authorName}"? This may affect related works and evidence.`)) {
       return;
     }

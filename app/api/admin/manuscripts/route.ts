@@ -5,8 +5,8 @@ export async function GET() {
   try {
     const pool = await getPool();
     const result = await pool.request().query(`
-      SELECT ManuscriptID, Library, Shelfmark, Date, DigitisedURL, ImageURL
-      FROM ManuscriptWitness
+      SELECT ManuscriptID, Title, Library, Shelfmark, Date, DigitisedURL
+      FROM dbo.Manuscript
       ORDER BY Shelfmark ASC
     `);
 
