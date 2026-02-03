@@ -39,6 +39,9 @@ export default function PendingApprovals() {
       return;
     }
 
+    // Small delay to ensure confirm dialog fully closes before state update
+    await new Promise(resolve => setTimeout(resolve, 100));
+
     setProcessing(true);
     try {
       const response = await fetch('/api/admin/approve-submission', {

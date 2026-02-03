@@ -99,6 +99,9 @@ export default function ManageWorks() {
       return;
     }
 
+    // Small delay to ensure confirm dialog fully closes
+    await new Promise(resolve => setTimeout(resolve, 100));
+
     try {
       const response = await fetch(`/api/admin/works/${workId}`, {
         method: 'DELETE',

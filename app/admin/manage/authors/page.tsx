@@ -77,6 +77,9 @@ export default function ManageAuthors() {
       return;
     }
 
+    // Small delay to ensure confirm dialog fully closes
+    await new Promise(resolve => setTimeout(resolve, 100));
+
     try {
       const response = await fetch(`/api/admin/authors/${authorId}`, {
         method: 'DELETE',

@@ -100,6 +100,9 @@ export default function ManageTags() {
       return;
     }
 
+    // Small delay to ensure confirm dialog fully closes
+    await new Promise(resolve => setTimeout(resolve, 100));
+
     try {
       const response = await fetch(`/api/admin/tags/${tagId}`, {
         method: 'DELETE',
