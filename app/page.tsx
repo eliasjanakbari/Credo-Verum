@@ -192,7 +192,7 @@ export default function Home() {
           <button
             type="button"
             onClick={() => setShowOriginalLanguage(prev => ({ ...prev, [source.id]: !prev[source.id] }))}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-700/60 hover:bg-slate-700 text-sm font-semibold text-slate-200 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-700/60 hover:bg-slate-700 text-sm font-semibold text-slate-200 transition-colors cursor-pointer"
           >
             <span className="text-lg">
               {showOriginalLanguage[source.id] ? '🇬🇧' : getLanguageInfo(source.language).emoji}
