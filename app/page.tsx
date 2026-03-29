@@ -70,9 +70,7 @@ export default function Home() {
   }, []);
 
   // Helper function to render manuscript witness section
-  const renderManuscriptWitness = (source: EvidenceSource, categoryIndex: number) => {
-    if (categoryIndex !== 0) return null; // Only show for featured (first) source
-
+  const renderManuscriptWitness = (source: EvidenceSource) => {
     const manuscript = source.manuscripts?.[0];
     const imageFromLink = source.links.find((l) => l.type === 'image')?.url;
     const manuscriptImage = manuscript?.imageUrl ?? imageFromLink ?? manuscript?.digitizedUrl;
@@ -202,7 +200,7 @@ export default function Home() {
         </div>
 
         {/* Manuscript witness section */}
-        {renderManuscriptWitness(source, categoryIndex)}
+        {renderManuscriptWitness(source)}
 
         {/* Gospel Witnesses table - only for miracle categories */}
         {['Nature', 'Healing', 'Resurrection', 'Demons'].includes(categoryLabel) && (
