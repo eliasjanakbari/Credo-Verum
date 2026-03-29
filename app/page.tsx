@@ -24,6 +24,7 @@ export default function Home() {
   const [showMiracleEvidence, setShowMiracleEvidence] = useState(false);
   const [showOriginalGreek, setShowOriginalGreek] = useState(false);
   const [activeFolioTooltip, setActiveFolioTooltip] = useState<string | null>(null);
+  const [highlightViewActive, setHighlightViewActive] = useState<Record<string, boolean>>({});
 
   // Language mapping for ISO codes to display names and emojis
   const languageMap: Record<string, { name: string; emoji: string }> = {
@@ -74,25 +75,45 @@ export default function Home() {
   const renderManuscriptWitness = (source: EvidenceSource) => {
     const manuscript = source.manuscripts?.[0];
     const imageFromLink = source.links.find((l) => l.type === 'image')?.url;
-    const manuscriptImage = manuscript?.imageUrl ?? imageFromLink ?? manuscript?.digitizedUrl;
+    const fullImage = manuscript?.imageUrl ?? imageFromLink ?? manuscript?.digitizedUrl;
 
-    if (!manuscript || !manuscriptImage) return null;
+    if (!manuscript || !fullImage) return null;
+
+    const hasHighlight = !!manuscript.highlightImageUrl;
+    const isHighlightActive = highlightViewActive[source.id] ?? false;
+    const displayImage = isHighlightActive && manuscript.highlightImageUrl ? manuscript.highlightImageUrl : fullImage;
 
     return (
       <div className="mt-4 rounded-2xl border border-slate-700/80 bg-slate-900/60 p-3">
-        <p className="text-[10px] font-semibold tracking-[0.18em] uppercase text-slate-400">
-          Manuscript Witness
-        </p>
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-[10px] font-semibold tracking-[0.18em] uppercase text-slate-400">
+            Manuscript Witness
+          </p>
+          {hasHighlight && (
+            <button
+              type="button"
+              onClick={() => setHighlightViewActive(prev => ({ ...prev, [source.id]: !prev[source.id] }))}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold transition-colors cursor-pointer ${
+                isHighlightActive
+                  ? 'bg-amber-400/20 border border-amber-400/60 text-amber-300 hover:bg-amber-400/30'
+                  : 'bg-slate-700/60 border border-slate-600 text-slate-400 hover:bg-slate-700 hover:text-slate-200'
+              }`}
+            >
+              <span>{isHighlightActive ? '◉' : '○'}</span>
+              {isHighlightActive ? 'Focus View' : 'Full View'}
+            </button>
+          )}
+        </div>
 
         <button
           type="button"
-          onClick={() => setFullscreenImage(manuscriptImage)}
-          className="group mt-2 block w-full text-left hover:opacity-90 transition-opacity"
+          onClick={() => setFullscreenImage(displayImage)}
+          className="group block w-full text-left hover:opacity-90 transition-opacity"
         >
-          <div className="overflow-hidden rounded-xl border border-slate-700/80 cursor-pointer">
+          <div className={`overflow-hidden rounded-xl border transition-colors ${isHighlightActive ? 'border-amber-500/40' : 'border-slate-700/80'} cursor-pointer`}>
             <img
-              src={manuscriptImage}
-              alt={`${source.work} manuscript thumbnail`}
+              src={displayImage}
+              alt={`${source.work} manuscript ${isHighlightActive ? 'highlight' : 'thumbnail'}`}
               className="w-full max-h-72 object-cover md:object-contain transition-transform duration-300 group-hover:scale-105"
             />
           </div>
@@ -100,8 +121,6 @@ export default function Home() {
             {manuscript.shelfmark}, {manuscript.library} ({manuscript.date}) – click to view full folio
           </p>
         </button>
-
-      
       </div>
     );
   };

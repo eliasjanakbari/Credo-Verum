@@ -8,6 +8,7 @@ interface Witness {
   ManuscriptID: string;
   EvidencePassageID: string;
   ImageURL: string;
+  HighlightImageURL: string;
   PassageReference: string;
   EvidenceTitle: string;
   EvidenceID: string;
@@ -42,6 +43,8 @@ export default function ManageManuscripts() {
     FolioGuide: '',
   });
   const [witnessImageURL, setWitnessImageURL] = useState('');
+  const [witnessHighlightImageURL, setWitnessHighlightImageURL] = useState('');
+  const [uploadingHighlightImage, setUploadingHighlightImage] = useState(false);
 
   useEffect(() => {
     fetchManuscripts();
@@ -88,6 +91,7 @@ export default function ManageManuscripts() {
   const handleEditWitness = (witness: Witness) => {
     setEditingWitness(witness);
     setWitnessImageURL(witness.ImageURL || '');
+    setWitnessHighlightImageURL(witness.HighlightImageURL || '');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -150,13 +154,14 @@ export default function ManageManuscripts() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ ImageURL: witnessImageURL }),
+        body: JSON.stringify({ ImageURL: witnessImageURL, HighlightImageURL: witnessHighlightImageURL }),
       });
 
       if (response.ok) {
-        alert('Witness image updated successfully!');
+        alert('Witness images updated successfully!');
         setEditingWitness(null);
         setWitnessImageURL('');
+        setWitnessHighlightImageURL('');
         fetchManuscripts();
       } else {
         const result = await response.json();
@@ -195,6 +200,36 @@ export default function ManageManuscripts() {
       alert('Error uploading image. Please try again.');
     } finally {
       setUploadingImage(false);
+    }
+  };
+
+  const handleHighlightImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingHighlightImage(true);
+
+    try {
+      const formDataUpload = new FormData();
+      formDataUpload.append('file', file);
+
+      const response = await fetch('/api/admin/upload-image', {
+        method: 'POST',
+        body: formDataUpload,
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setWitnessHighlightImageURL(result.url);
+      } else {
+        alert(`Error uploading image: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      alert('Error uploading image. Please try again.');
+    } finally {
+      setUploadingHighlightImage(false);
     }
   };
 
@@ -412,69 +447,111 @@ export default function ManageManuscripts() {
                 </p>
               </div>
 
-              {/* Current Image */}
-              {editingWitness.ImageURL && (
-                <div className="mb-4">
-                  <label className="block text-sm font-medium mb-2">Current Image</label>
-                  <img
-                    src={editingWitness.ImageURL}
-                    alt="Current witness"
-                    className="max-w-full max-h-64 rounded border border-slate-300"
-                  />
-                </div>
-              )}
-
-              <form onSubmit={handleUpdateWitness} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">Image URL</label>
-                  <input
-                    type="url"
-                    placeholder="https://..."
-                    value={witnessImageURL}
-                    onChange={(e) => setWitnessImageURL(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-md"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2">Or Upload New Image</label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-md"
-                    disabled={uploadingImage}
-                  />
-                  {uploadingImage && (
-                    <p className="text-sm text-slate-500 mt-1">Uploading image...</p>
-                  )}
-                </div>
-
-                {/* Preview new image */}
-                {witnessImageURL && witnessImageURL !== editingWitness.ImageURL && (
+              {/* Current Images */}
+              <div className="mb-4 grid grid-cols-2 gap-4">
+                {editingWitness.ImageURL && (
                   <div>
-                    <label className="block text-sm font-medium mb-2">New Image Preview</label>
+                    <label className="block text-sm font-medium mb-2">Current Full Image</label>
                     <img
-                      src={witnessImageURL}
-                      alt="New witness"
-                      className="max-w-full max-h-64 rounded border border-slate-300"
+                      src={editingWitness.ImageURL}
+                      alt="Current witness"
+                      className="max-w-full max-h-48 rounded border border-slate-300"
                     />
                   </div>
                 )}
+                {editingWitness.HighlightImageURL && (
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Current Highlight Image</label>
+                    <img
+                      src={editingWitness.HighlightImageURL}
+                      alt="Current highlight"
+                      className="max-w-full max-h-48 rounded border border-slate-300"
+                    />
+                  </div>
+                )}
+              </div>
+
+              <form onSubmit={handleUpdateWitness} className="space-y-6">
+                {/* Full manuscript image */}
+                <div className="space-y-3 p-4 border border-slate-200 rounded-lg">
+                  <h3 className="font-semibold text-slate-700">Full Manuscript Image</h3>
+                  <p className="text-xs text-slate-500">The standard view showing the whole folio or page.</p>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Image URL</label>
+                    <input
+                      type="url"
+                      placeholder="https://..."
+                      value={witnessImageURL}
+                      onChange={(e) => setWitnessImageURL(e.target.value)}
+                      className="w-full px-3 py-2 border border-slate-300 rounded-md"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Or Upload</label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="w-full px-3 py-2 border border-slate-300 rounded-md"
+                      disabled={uploadingImage}
+                    />
+                    {uploadingImage && <p className="text-sm text-slate-500 mt-1">Uploading...</p>}
+                  </div>
+                  {witnessImageURL && witnessImageURL !== editingWitness.ImageURL && (
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Preview</label>
+                      <img src={witnessImageURL} alt="New witness" className="max-w-full max-h-48 rounded border border-slate-300" />
+                    </div>
+                  )}
+                </div>
+
+                {/* Highlight / focus image */}
+                <div className="space-y-3 p-4 border border-purple-200 rounded-lg bg-purple-50">
+                  <h3 className="font-semibold text-purple-800">Highlight Focus Image</h3>
+                  <p className="text-xs text-purple-600">A version with the rest of the manuscript darkened/greyed out and the relevant text highlighted, so users can focus on the passage.</p>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Image URL</label>
+                    <input
+                      type="url"
+                      placeholder="https://..."
+                      value={witnessHighlightImageURL}
+                      onChange={(e) => setWitnessHighlightImageURL(e.target.value)}
+                      className="w-full px-3 py-2 border border-slate-300 rounded-md"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Or Upload</label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleHighlightImageUpload}
+                      className="w-full px-3 py-2 border border-slate-300 rounded-md"
+                      disabled={uploadingHighlightImage}
+                    />
+                    {uploadingHighlightImage && <p className="text-sm text-slate-500 mt-1">Uploading...</p>}
+                  </div>
+                  {witnessHighlightImageURL && witnessHighlightImageURL !== editingWitness.HighlightImageURL && (
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Preview</label>
+                      <img src={witnessHighlightImageURL} alt="New highlight" className="max-w-full max-h-48 rounded border border-purple-300" />
+                    </div>
+                  )}
+                </div>
 
                 <div className="flex gap-4">
                   <button
                     type="submit"
                     className="px-6 py-2 bg-sky-600 text-white rounded-md hover:bg-sky-700"
-                    disabled={uploadingImage}
+                    disabled={uploadingImage || uploadingHighlightImage}
                   >
-                    Save Image
+                    Save Images
                   </button>
                   <button
                     type="button"
                     onClick={() => {
                       setEditingWitness(null);
                       setWitnessImageURL('');
+                      setWitnessHighlightImageURL('');
                     }}
                     className="px-6 py-2 bg-slate-200 text-slate-700 rounded-md hover:bg-slate-300"
                   >

@@ -8,15 +8,17 @@ export async function PUT(
 ) {
   try {
     const { id: witnessId } = await params;
-    const { ImageURL } = await request.json();
+    const { ImageURL, HighlightImageURL } = await request.json();
 
     const pool = await getPool();
     await pool.request()
       .input('witnessId', sql.NVarChar(50), witnessId)
       .input('imageURL', sql.NVarChar, ImageURL || null)
+      .input('highlightImageURL', sql.NVarChar, HighlightImageURL || null)
       .query(`
         UPDATE dbo.ManuscriptWitness
-        SET ImageURL = @imageURL
+        SET ImageURL = @imageURL,
+            HighlightImageURL = @highlightImageURL
         WHERE WitnessID = @witnessId
       `);
 

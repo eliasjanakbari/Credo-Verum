@@ -24,6 +24,7 @@ export async function GET() {
         mw.ManuscriptID,
         mw.EvidencePassageID,
         mw.ImageURL,
+        mw.HighlightImageURL,
         ep.Reference as PassageReference,
         e.Title as EvidenceTitle,
         e.EvidenceID
