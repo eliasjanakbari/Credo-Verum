@@ -8,7 +8,7 @@ export async function PUT(
 ) {
   try {
     const { id: manuscriptId } = await params;
-    const { Title, Library, Shelfmark, Date, DigitisedURL } = await request.json();
+    const { Title, Library, Shelfmark, Date, DigitisedURL, FolioGuide } = await request.json();
 
     const pool = await getPool();
     await pool.request()
@@ -18,6 +18,7 @@ export async function PUT(
       .input('shelfmark', sql.NVarChar, Shelfmark)
       .input('date', sql.NVarChar, Date || null)
       .input('digitisedURL', sql.NVarChar, DigitisedURL || null)
+      .input('folioGuide', sql.NVarChar, FolioGuide || null)
       .query(`
         UPDATE dbo.Manuscript
         SET Title = @title,
@@ -25,6 +26,7 @@ export async function PUT(
             Shelfmark = @shelfmark,
             Date = @date,
             DigitisedURL = @digitisedURL,
+            FolioGuide = @folioGuide,
             updatedAt = GETDATE()
         WHERE ManuscriptID = @manuscriptId
       `);

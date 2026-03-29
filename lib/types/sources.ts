@@ -21,6 +21,7 @@ export interface ManuscriptWitness {
   date: string;
   digitizedUrl: string;
   imageUrl?: string;
+  folioGuide?: string;
   notes?: string;
 }
 

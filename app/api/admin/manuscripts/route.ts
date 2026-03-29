@@ -12,7 +12,7 @@ export async function GET() {
 
     // Fetch manuscripts
     const manuscriptsResult = await pool.request().query(`
-      SELECT ManuscriptID, Title, Library, Shelfmark, Date, DigitisedURL
+      SELECT ManuscriptID, Title, Library, Shelfmark, Date, DigitisedURL, FolioGuide
       FROM dbo.Manuscript
       ORDER BY Shelfmark ASC
     `);
@@ -56,7 +56,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const { Title, Library, Shelfmark, Date, DigitisedURL } = await request.json();
+    const { Title, Library, Shelfmark, Date, DigitisedURL, FolioGuide } = await request.json();
 
     if (!Library || !Shelfmark) {
       return NextResponse.json(
@@ -75,9 +75,10 @@ export async function POST(request: Request) {
       .input('shelfmark', sql.NVarChar, Shelfmark)
       .input('date', sql.NVarChar, Date || null)
       .input('digitisedURL', sql.NVarChar, DigitisedURL || null)
+      .input('folioGuide', sql.NVarChar, FolioGuide || null)
       .query(`
-        INSERT INTO dbo.Manuscript (ManuscriptID, Title, Library, Shelfmark, Date, DigitisedURL, createdAt, updatedAt)
-        VALUES (@manuscriptId, @title, @library, @shelfmark, @date, @digitisedURL, GETDATE(), GETDATE())
+        INSERT INTO dbo.Manuscript (ManuscriptID, Title, Library, Shelfmark, Date, DigitisedURL, FolioGuide, createdAt, updatedAt)
+        VALUES (@manuscriptId, @title, @library, @shelfmark, @date, @digitisedURL, @folioGuide, GETDATE(), GETDATE())
       `);
 
     return NextResponse.json({ success: true, manuscriptId });

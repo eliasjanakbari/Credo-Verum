@@ -49,6 +49,7 @@ function groupSQLResults(rows: any[]): EvidenceSource[] {
         date: row.ManuscriptDate,
         digitizedUrl: row.ManuscriptDigitisedURL || '',
         imageUrl: row.ManuscriptImageURL || undefined,
+        folioGuide: row.ManuscriptFolioGuide || undefined,
         notes: undefined,
       });
     }
@@ -92,6 +93,7 @@ export async function getAllSources(): Promise<EvidenceSource[]> {
       m.Shelfmark as ManuscriptShelfmark,
       m.Date as ManuscriptDate,
       m.DigitisedURL as ManuscriptDigitisedURL,
+      m.FolioGuide as ManuscriptFolioGuide,
       t.Tag
     FROM Evidence e
     LEFT JOIN EvidencePassage ep ON e.EvidenceID = ep.EvidenceID
@@ -140,6 +142,7 @@ export async function getSourceById(id: string): Promise<EvidenceSource | null> 
         m.Shelfmark as ManuscriptShelfmark,
         m.Date as ManuscriptDate,
         m.DigitisedURL as ManuscriptDigitisedURL,
+        m.FolioGuide as ManuscriptFolioGuide,
         t.Tag
       FROM Evidence e
       LEFT JOIN EvidencePassage ep ON e.EvidenceID = ep.EvidenceID
@@ -188,6 +191,7 @@ export async function getSourcesByCategory(category: EvidenceCategory): Promise<
         m.Shelfmark as ManuscriptShelfmark,
         m.Date as ManuscriptDate,
         m.DigitisedURL as ManuscriptDigitisedURL,
+        m.FolioGuide as ManuscriptFolioGuide,
         t.Tag
       FROM Evidence e
       LEFT JOIN EvidencePassage ep ON e.EvidenceID = ep.EvidenceID
@@ -236,6 +240,7 @@ export async function searchSources(searchTerm: string): Promise<EvidenceSource[
         m.Shelfmark as ManuscriptShelfmark,
         m.Date as ManuscriptDate,
         m.DigitisedURL as ManuscriptDigitisedURL,
+        m.FolioGuide as ManuscriptFolioGuide,
         t.Tag
       FROM Evidence e
       LEFT JOIN EvidencePassage ep ON e.EvidenceID = ep.EvidenceID

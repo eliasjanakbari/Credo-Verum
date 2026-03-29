@@ -23,6 +23,7 @@ export default function Home() {
   const [selectedMiracle, setSelectedMiracle] = useState<EvidenceSource | null>(null);
   const [showMiracleEvidence, setShowMiracleEvidence] = useState(false);
   const [showOriginalGreek, setShowOriginalGreek] = useState(false);
+  const [activeFolioTooltip, setActiveFolioTooltip] = useState<string | null>(null);
 
   // Language mapping for ISO codes to display names and emojis
   const languageMap: Record<string, { name: string; emoji: string }> = {
@@ -256,15 +257,40 @@ export default function Home() {
             ))}
 
           {source.manuscripts.length > 0 && source.manuscripts[0].digitizedUrl && (
-            <a
-              href={source.manuscripts[0].digitizedUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 text-sm font-semibold text-amber-200 transition-colors"
-            >
-              <span>📜</span>
-              View Digitized Manuscript
-            </a>
+            <div className="relative flex items-center gap-1">
+              <a
+                href={source.manuscripts[0].digitizedUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 text-sm font-semibold text-amber-200 transition-colors"
+              >
+                <span>📜</span>
+                View Digitized Manuscript
+              </a>
+              {source.manuscripts[0].folioGuide && (
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveFolioTooltip(activeFolioTooltip === source.id ? null : source.id);
+                    }}
+                    onMouseEnter={() => setActiveFolioTooltip(source.id)}
+                    onMouseLeave={() => setActiveFolioTooltip(null)}
+                    className="flex items-center justify-center w-5 h-5 rounded-full bg-amber-500/30 border border-amber-500/50 text-amber-300 text-xs font-bold hover:bg-amber-500/50 transition-colors cursor-pointer"
+                    aria-label="Navigation guide"
+                  >
+                    i
+                  </button>
+                  {activeFolioTooltip === source.id && (
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 rounded-lg bg-slate-900 border border-amber-500/40 px-3 py-2 text-xs text-slate-200 shadow-xl z-20 pointer-events-none">
+                      {source.manuscripts[0].folioGuide}
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900" />
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           )}
         </div>
 
