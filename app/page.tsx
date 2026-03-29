@@ -110,7 +110,7 @@ export default function Home() {
           onClick={() => setFullscreenImage(displayImage)}
           className="group block w-full text-left hover:opacity-90 transition-opacity"
         >
-          <div className={`overflow-hidden rounded-xl border transition-colors ${isHighlightActive ? 'border-amber-500/40' : 'border-slate-700/80'} cursor-pointer`}>
+          <div className="overflow-hidden rounded-xl border border-slate-700/80 cursor-pointer">
             <img
               src={displayImage}
               alt={`${source.work} manuscript ${isHighlightActive ? 'highlight' : 'thumbnail'}`}
