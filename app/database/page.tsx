@@ -76,7 +76,7 @@ export default function DatabasePage() {
     }
 
     return sorted;
-  }, [searchTerm, categoryFilter, sortBy]);
+  }, [sources, searchTerm, categoryFilter, sortBy]);
 
   return (
     <main className="min-h-screen bg-white text-slate-900">
