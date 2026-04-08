@@ -42,7 +42,7 @@ export default async function ArticlePage({
               <div className="flex items-center text-slate-600 text-sm">
                 <span className="font-medium">{article.AuthorName}</span>
                 <span className="mx-2">•</span>
-                <time dateTime={article.PublishedDate}>
+                <time dateTime={new Date(article.PublishedDate).toISOString()}>
                   {new Date(article.PublishedDate).toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'long',
