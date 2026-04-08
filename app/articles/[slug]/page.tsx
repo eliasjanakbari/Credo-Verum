@@ -1,30 +1,64 @@
-import { notFound } from 'next/navigation';
-import DOMPurify from 'isomorphic-dompurify';
-import { getArticleBySlug } from '@/lib/db/articles';
+'use client';
 
-async function getArticle(slug: string) {
-  try {
-    const article = await getArticleBySlug(slug);
-    return article;
-  } catch (error) {
-    console.error('Error fetching article:', error);
-    return null;
-  }
+import { useEffect, useState } from 'react';
+import { useParams, notFound } from 'next/navigation';
+import DOMPurify from 'dompurify';
+
+interface Article {
+  ArticleID: string;
+  Title: string;
+  Slug: string;
+  Content: string;
+  AuthorName: string;
+  PublishedDate: string;
+  Status: string;
 }
 
-export default async function ArticlePage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
-  const { slug } = await params;
-  const article = await getArticle(slug);
+export default function ArticlePage() {
+  const params = useParams();
+  const slug = params.slug as string;
+  const [article, setArticle] = useState<Article | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchArticle() {
+      try {
+        const res = await fetch(`/api/articles/${slug}`);
+        if (!res.ok) {
+          setArticle(null);
+          setLoading(false);
+          return;
+        }
+        const data = await res.json();
+        setArticle(data);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching article:', error);
+        setArticle(null);
+        setLoading(false);
+      }
+    }
+
+    fetchArticle();
+  }, [slug]);
+
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-[#F3EEEA]">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden p-8 md:p-12">
+            <p>Loading...</p>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   if (!article) {
     notFound();
   }
 
-  // Sanitize HTML content
+  // Sanitize HTML content (client-side only)
   const sanitizedContent = DOMPurify.sanitize(article.Content);
 
   return (
@@ -76,35 +110,4 @@ export default async function ArticlePage({
       </div>
     </main>
   );
-}
-
-// Generate metadata for SEO
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
-  const { slug } = await params;
-  const article = await getArticle(slug);
-
-  if (!article) {
-    return {
-      title: 'Article Not Found',
-    };
-  }
-
-  // Extract plain text preview from HTML
-  const plainText = article.Content.replace(/<[^>]*>/g, '').substring(0, 160);
-
-  return {
-    title: `${article.Title} | Credo Verum`,
-    description: plainText,
-    openGraph: {
-      title: article.Title,
-      description: plainText,
-      type: 'article',
-      publishedTime: article.PublishedDate,
-      authors: [article.AuthorName],
-    },
-  };
 }
