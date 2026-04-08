@@ -1,19 +1,11 @@
 import { notFound } from 'next/navigation';
 import DOMPurify from 'isomorphic-dompurify';
+import { getArticleBySlug } from '@/lib/db/articles';
 
 async function getArticle(slug: string) {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-
   try {
-    const res = await fetch(`${baseUrl}/api/articles/${slug}`, {
-      cache: 'no-store',
-    });
-
-    if (!res.ok) {
-      return null;
-    }
-
-    return res.json();
+    const article = await getArticleBySlug(slug);
+    return article;
   } catch (error) {
     console.error('Error fetching article:', error);
     return null;
