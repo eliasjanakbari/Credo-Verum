@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-type EntityType = 'authors' | 'works' | 'manuscripts' | 'tags' | 'evidence';
+type EntityType = 'authors' | 'works' | 'manuscripts' | 'tags' | 'evidence' | 'articles';
 
 export default function ManageData() {
   const entities = [
@@ -33,6 +33,12 @@ export default function ManageData() {
       title: 'Evidence',
       description: 'View, edit, and delete evidence entries',
       color: 'bg-red-50 border-red-200 hover:border-red-500',
+    },
+    {
+      type: 'articles' as EntityType,
+      title: 'Articles',
+      description: 'View, edit, and delete blog articles',
+      color: 'bg-indigo-50 border-indigo-200 hover:border-indigo-500',
     },
   ];
 

@@ -130,3 +130,21 @@ model PassageConnection {
 
   @@map("PassageConnection")
 }
+
+// Article table
+model Article {
+  ArticleID     String   @id @default(cuid()) @map("ArticleID")
+  Title         String
+  Slug          String   @unique
+  Content       String   @db.NVarChar(Max)
+  AuthorName    String
+  PublishedDate DateTime
+  Status        String   @default("draft")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("Article")
+  @@index([Status])
+  @@index([PublishedDate])
+  @@index([Slug])
+}
