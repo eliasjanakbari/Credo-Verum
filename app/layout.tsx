@@ -49,6 +49,19 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        {/* Google Analytics */}
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-S2ZDPHXGBV"></script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-S2ZDPHXGBV');
+            `,
+          }}
+        />
+
         <link rel="icon" href="/icons/Agnus-Dei-Favicon-Light-32.png" sizes="32x32" media="(prefers-color-scheme: light)" />
         <link rel="icon" href="/icons/Agnus-Dei-Favicon-Dark-32.png" sizes="32x32" media="(prefers-color-scheme: dark)" />
 
