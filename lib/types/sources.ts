@@ -34,6 +34,19 @@ export interface GospelReferences {
   John?: string;
 }
 
+// Evidence passage interface
+export interface EvidencePassage {
+  passageId?: string;
+  author: string;
+  work: string;
+  section?: string;
+  date: string;
+  language: string;
+  quoteOriginal: string;
+  quoteEnglish: string;
+  reference?: string;
+}
+
 // Evidence source interface
 export interface EvidenceSource {
   id: string;
@@ -55,4 +68,5 @@ export interface EvidenceSource {
   links: EvidenceLink[];
   manuscripts: ManuscriptWitness[];
   gospelReferences?: GospelReferences;
+  passages?: EvidencePassage[];
 }

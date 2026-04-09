@@ -1,5 +1,5 @@
 import { getPool } from './sql-helpers';
-import type { EvidenceSource, EvidenceCategory, ManuscriptWitness, GospelReferences } from '../types/sources';
+import type { EvidenceSource, EvidenceCategory, ManuscriptWitness, GospelReferences, EvidencePassage } from '../types/sources';
 
 /**
  * Helper function to group and transform SQL results into EvidenceSource format
@@ -39,6 +39,7 @@ function groupSQLResults(rows: any[]): EvidenceSource[] {
         links: links,
         manuscripts: [],
         gospelReferences: {},
+        passages: [],
       });
     }
 
@@ -72,6 +73,29 @@ function groupSQLResults(rows: any[]): EvidenceSource[] {
         evidence.gospelReferences[authorName as keyof GospelReferences] = row.PassageReference;
       }
     }
+
+    // Add passage if present and not already added
+    if (row.EvidencePassageID && row.PassageText) {
+      if (!evidence.passages) {
+        evidence.passages = [];
+      }
+
+      // Check if this passage is already added
+      const passageExists = evidence.passages.some(p => p.passageId === row.EvidencePassageID);
+      if (!passageExists) {
+        evidence.passages.push({
+          passageId: row.EvidencePassageID,
+          author: row.AuthorName || 'Unknown',
+          work: row.WorkTitle || 'Unknown',
+          section: row.PassageReference || undefined,
+          date: row.PublishedDateLabel || '',
+          language: row.OriginalLanguage || 'Unknown',
+          quoteOriginal: row.OriginalTranslationText || '',
+          quoteEnglish: row.PassageText || '',
+          reference: row.PassageReference || undefined,
+        });
+      }
+    }
   }
 
   return Array.from(evidenceMap.values());
@@ -91,6 +115,7 @@ export async function getAllSources(): Promise<EvidenceSource[]> {
       e.Category,
       e.Summary,
       e.createdAt as EvidenceDate,
+      ep.EvidencePassageID,
       ep.PassageText as PassageText,
       ep.OriginalLanguage,
       ep.OriginalTranslationText,
@@ -141,6 +166,7 @@ export async function getSourceById(id: string): Promise<EvidenceSource | null> 
         e.Category,
         e.Summary,
         e.createdAt as EvidenceDate,
+      ep.EvidencePassageID,
         ep.PassageText as PassageText,
         ep.OriginalLanguage,
         ep.OriginalTranslationText,
@@ -191,6 +217,7 @@ export async function getSourcesByCategory(category: EvidenceCategory): Promise<
         e.Category,
         e.Summary,
         e.createdAt as EvidenceDate,
+      ep.EvidencePassageID,
         ep.PassageText as PassageText,
         ep.OriginalLanguage,
         ep.OriginalTranslationText,
@@ -241,6 +268,7 @@ export async function searchSources(searchTerm: string): Promise<EvidenceSource[
         e.Category,
         e.Summary,
         e.createdAt as EvidenceDate,
+      ep.EvidencePassageID,
         ep.PassageText as PassageText,
         ep.OriginalLanguage,
         ep.OriginalTranslationText,

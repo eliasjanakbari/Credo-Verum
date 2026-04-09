@@ -25,6 +25,7 @@ export default function Home() {
   const [showOriginalGreek, setShowOriginalGreek] = useState(false);
   const [activeFolioTooltip, setActiveFolioTooltip] = useState<string | null>(null);
   const [highlightViewActive, setHighlightViewActive] = useState<Record<string, boolean>>({});
+  const [activePassageId, setActivePassageId] = useState<Record<string, string | undefined>>({});
 
   // Language mapping for ISO codes to display names and emojis
   const languageMap: Record<string, { name: string; emoji: string }> = {
@@ -214,9 +215,26 @@ export default function Home() {
         {!isMiracle && <p className="mt-1 text-xs text-slate-400">{source.date}</p>}
 
         {/* Quote */}
-        <p className="mt-3 text-sm text-slate-100">
-          "{showOriginalLanguage[source.id] ? source.quoteOriginal : source.quoteEnglish}"
-        </p>
+        {(() => {
+          // For miracles with multiple passages, show the selected passage
+          if (isMiracle && source.passages && source.passages.length > 0) {
+            const currentPassageId = activePassageId[source.id] || source.passages[0].passageId;
+            const currentPassage = source.passages.find(p => p.passageId === currentPassageId) || source.passages[0];
+
+            return (
+              <p className="mt-3 text-sm text-slate-100">
+                "{showOriginalLanguage[source.id] ? currentPassage.quoteOriginal : currentPassage.quoteEnglish}"
+              </p>
+            );
+          }
+
+          // For non-miracles or miracles without passages array, show the default quote
+          return (
+            <p className="mt-3 text-sm text-slate-100">
+              "{showOriginalLanguage[source.id] ? source.quoteOriginal : source.quoteEnglish}"
+            </p>
+          );
+        })()}
 
         {/* View original language button */}
         <div className="mt-4">
@@ -254,12 +272,28 @@ export default function Home() {
                 <tbody>
                   {['Matthew', 'Mark', 'Luke', 'John'].map((gospel) => {
                     const reference = source.gospelReferences?.[gospel as keyof typeof source.gospelReferences];
+                    // Find the passage for this gospel
+                    const passage = source.passages?.find(p => p.author.trim() === gospel);
+                    const currentPassageId = activePassageId[source.id] || source.passages?.[0]?.passageId;
+                    const isActive = passage?.passageId === currentPassageId;
+                    const hasPassage = !!passage;
+
                     return (
-                      <tr key={gospel} className="border-b border-slate-700/30 last:border-0">
+                      <tr
+                        key={gospel}
+                        className={`border-b border-slate-700/30 last:border-0 transition-colors ${
+                          hasPassage ? 'cursor-pointer hover:bg-slate-800/50' : ''
+                        } ${isActive ? 'bg-slate-700/40' : ''}`}
+                        onClick={() => {
+                          if (hasPassage && passage) {
+                            setActivePassageId(prev => ({ ...prev, [source.id]: passage.passageId }));
+                          }
+                        }}
+                      >
                         <td className="px-3 py-2 font-semibold text-slate-200">{gospel}</td>
                         <td className="px-3 py-2 text-slate-300">
                           {reference ? (
-                            <span className="text-slate-200">{reference}</span>
+                            <span className={isActive ? 'text-slate-100 font-semibold' : 'text-slate-200'}>{reference}</span>
                           ) : (
                             <span className="text-slate-500">—</span>
                           )}
