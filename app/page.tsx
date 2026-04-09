@@ -243,10 +243,24 @@ export default function Home() {
             onClick={() => setShowOriginalLanguage(prev => ({ ...prev, [source.id]: !prev[source.id] }))}
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-700/60 hover:bg-slate-700 text-sm font-semibold text-slate-200 transition-colors cursor-pointer"
           >
-            <span className="text-lg">
-              {showOriginalLanguage[source.id] ? '🇬🇧' : getLanguageInfo(source.language).emoji}
-            </span>
-            {showOriginalLanguage[source.id] ? `View English` : `View Original (${getLanguageInfo(source.language).name})`}
+            {(() => {
+              // For miracles with passages, use the selected passage's language
+              let language = source.language;
+              if (isMiracle && source.passages && source.passages.length > 0) {
+                const currentPassageId = activePassageId[source.id] || source.passages[0].passageId;
+                const currentPassage = source.passages.find(p => p.passageId === currentPassageId) || source.passages[0];
+                language = currentPassage.language;
+              }
+
+              return (
+                <>
+                  <span className="text-lg">
+                    {showOriginalLanguage[source.id] ? '🇬🇧' : getLanguageInfo(language).emoji}
+                  </span>
+                  {showOriginalLanguage[source.id] ? `View English` : `View Original (${getLanguageInfo(language).name})`}
+                </>
+              );
+            })()}
           </button>
         </div>
 
