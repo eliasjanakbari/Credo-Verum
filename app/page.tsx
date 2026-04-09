@@ -1011,7 +1011,7 @@ export default function Home() {
           <div className="w-full max-w-xl rounded-3xl btn-main shadow-xl">
             <div className="flex flex-col items-center px-8 py-6 text-slate-900">
               <svg className="h-16 w-16 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 21h18M4 18h16M6 18V9.5M10 18v-4M14 18v-4M18 18V9.5M4 9.5l8-6 8 6M9 3v3" />
               </svg>
               <h1 className="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-center">
                 Work in progress
@@ -1027,7 +1027,7 @@ export default function Home() {
           <div className="w-full max-w-xl rounded-3xl btn-main shadow-xl">
             <div className="flex flex-col items-center px-8 py-6 text-slate-900">
               <svg className="h-16 w-16 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 21h18M4 18h16M6 18V9.5M10 18v-4M14 18v-4M18 18V9.5M4 9.5l8-6 8 6M9 3v3" />
               </svg>
               <h1 className="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-center">
                 Work in progress
