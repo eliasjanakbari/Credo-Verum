@@ -1010,8 +1010,9 @@ export default function Home() {
         <div className="w-full max-w-3xl flex flex-col items-center">
           <div className="w-full max-w-xl rounded-3xl btn-main shadow-xl">
             <div className="flex flex-col items-center px-8 py-6 text-slate-900">
-              <svg className="h-16 w-16 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 21h18M4 18h16M6 18V9.5M10 18v-4M14 18v-4M18 18V9.5M4 9.5l8-6 8 6M9 3v3" />
+              <svg className="h-16 w-16 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <path stroke="currentColor" strokeLinejoin="round" strokeWidth="2" d="m20.9532 11.7634-2.0523-2.05225-2.0523 2.05225 2.0523 2.0523 2.0523-2.0523Zm-1.3681-2.73651-4.1046-4.10457L12.06 8.3428l4.1046 4.1046 3.4205-3.42051Zm-4.1047 2.73651-2.7363-2.73638-8.20919 8.20918 2.73639 2.7364 8.2091-8.2092Z"/>
+                <path stroke="currentColor" strokeLinejoin="round" strokeWidth="2" d="m12.9306 3.74083 1.8658 1.86571-2.0523 2.05229-1.5548-1.55476c-.995-.99505-3.23389-.49753-3.91799.18657l2.73639-2.73639c.6841-.68409 1.9901-.74628 2.9229.18658Z"/>
               </svg>
               <h1 className="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-center">
                 Work in progress
@@ -1026,8 +1027,9 @@ export default function Home() {
         <div className="w-full max-w-3xl flex flex-col items-center">
           <div className="w-full max-w-xl rounded-3xl btn-main shadow-xl">
             <div className="flex flex-col items-center px-8 py-6 text-slate-900">
-              <svg className="h-16 w-16 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 21h18M4 18h16M6 18V9.5M10 18v-4M14 18v-4M18 18V9.5M4 9.5l8-6 8 6M9 3v3" />
+              <svg className="h-16 w-16 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <path stroke="currentColor" strokeLinejoin="round" strokeWidth="2" d="m20.9532 11.7634-2.0523-2.05225-2.0523 2.05225 2.0523 2.0523 2.0523-2.0523Zm-1.3681-2.73651-4.1046-4.10457L12.06 8.3428l4.1046 4.1046 3.4205-3.42051Zm-4.1047 2.73651-2.7363-2.73638-8.20919 8.20918 2.73639 2.7364 8.2091-8.2092Z"/>
+                <path stroke="currentColor" strokeLinejoin="round" strokeWidth="2" d="m12.9306 3.74083 1.8658 1.86571-2.0523 2.05229-1.5548-1.55476c-.995-.99505-3.23389-.49753-3.91799.18657l2.73639-2.73639c.6841-.68409 1.9901-.74628 2.9229.18658Z"/>
               </svg>
               <h1 className="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-center">
                 Work in progress
