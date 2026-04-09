@@ -239,14 +239,21 @@ export default function Home() {
                   </tr>
                 </thead>
                 <tbody>
-                  {['Matthew', 'Mark', 'Luke', 'John'].map((gospel) => (
-                    <tr key={gospel} className="border-b border-slate-700/30 last:border-0">
-                      <td className="px-3 py-2 font-semibold text-slate-200">{gospel}</td>
-                      <td className="px-3 py-2 text-slate-300">
-                        <span className="text-slate-500">—</span>
-                      </td>
-                    </tr>
-                  ))}
+                  {['Matthew', 'Mark', 'Luke', 'John'].map((gospel) => {
+                    const reference = source.gospelReferences?.[gospel as keyof typeof source.gospelReferences];
+                    return (
+                      <tr key={gospel} className="border-b border-slate-700/30 last:border-0">
+                        <td className="px-3 py-2 font-semibold text-slate-200">{gospel}</td>
+                        <td className="px-3 py-2 text-slate-300">
+                          {reference ? (
+                            <span className="text-slate-200">{reference}</span>
+                          ) : (
+                            <span className="text-slate-500">—</span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

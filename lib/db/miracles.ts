@@ -1,5 +1,5 @@
 import { getPool } from './sql-helpers';
-import type { EvidenceSource, MiracleCategoryType } from '../types/sources';
+import type { EvidenceSource, MiracleCategoryType, GospelReferences } from '../types/sources';
 
 /**
  * Helper function to group and transform SQL results into EvidenceSource format
@@ -37,6 +37,7 @@ function groupSQLResults(rows: any[]): EvidenceSource[] {
         tags: [],
         links: links,
         manuscripts: [],
+        gospelReferences: {},
       });
     }
 
@@ -58,6 +59,17 @@ function groupSQLResults(rows: any[]): EvidenceSource[] {
     // Add tag if present and not already added
     if (row.Tag && !evidence.tags.includes(row.Tag)) {
       evidence.tags.push(row.Tag);
+    }
+
+    // Add gospel reference if the author is one of the four evangelists
+    if (row.AuthorName && row.PassageReference) {
+      const authorName = row.AuthorName.trim();
+      if (['Matthew', 'Mark', 'Luke', 'John'].includes(authorName)) {
+        if (!evidence.gospelReferences) {
+          evidence.gospelReferences = {};
+        }
+        evidence.gospelReferences[authorName as keyof GospelReferences] = row.PassageReference;
+      }
     }
   }
 

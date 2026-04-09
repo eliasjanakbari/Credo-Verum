@@ -26,6 +26,14 @@ export interface ManuscriptWitness {
   notes?: string;
 }
 
+// Gospel references interface
+export interface GospelReferences {
+  Matthew?: string;
+  Mark?: string;
+  Luke?: string;
+  John?: string;
+}
+
 // Evidence source interface
 export interface EvidenceSource {
   id: string;
@@ -45,4 +53,5 @@ export interface EvidenceSource {
   tags: string[];
   links: EvidenceLink[];
   manuscripts: ManuscriptWitness[];
+  gospelReferences?: GospelReferences;
 }
