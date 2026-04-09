@@ -37,6 +37,7 @@ export interface GospelReferences {
 // Evidence source interface
 export interface EvidenceSource {
   id: string;
+  title?: string;
   category: CategoryType;
   author: string;
   authorLifespan?: string;

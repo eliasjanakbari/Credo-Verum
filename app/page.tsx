@@ -127,6 +127,8 @@ export default function Home() {
 
   // Helper function to render source card
   const renderSourceCard = (source: EvidenceSource, categoryIndex: number, categoryLabel: string) => {
+    const isMiracle = ['Nature', 'Healing', 'Resurrection', 'Demons'].includes(categoryLabel);
+
     return (
       <div key={source.id} className="rounded-3xl border border-slate-700 bg-slate-800/90 px-5 py-4 shadow-lg transition-all duration-300 ease-out">
         <div className="flex items-center justify-between gap-2">
@@ -134,45 +136,49 @@ export default function Home() {
             {categoryLabel} Source
           </div>
 
-          {/* Desktop hover tooltip */}
-          <div className="hidden md:block relative group">
+          {/* Desktop hover tooltip - only for non-miracles */}
+          {!isMiracle && (
+            <div className="hidden md:block relative group">
+              <button
+                type="button"
+                className="text-[10px] font-semibold rounded-full bg-slate-700/80 px-3 py-1 uppercase tracking-[0.18em] text-slate-200"
+              >
+                {source.author.split(' ')[0]} • Info
+              </button>
+
+              <div className="pointer-events-none absolute right-0 z-20 mt-2 hidden w-72 rounded-2xl bg-slate-900/95 p-4 text-left shadow-2xl ring-1 ring-slate-700 group-hover:block">
+                <p className="text-xs font-semibold text-slate-100">
+                  {source.author}
+                  {source.authorLifespan ? ` (${source.authorLifespan})` : ''}
+                </p>
+                <p className="mt-1 text-[11px] text-slate-300">
+                  {source.authorDescription}
+                </p>
+                <p className="mt-2 text-[11px] font-semibold text-slate-200">
+                  Work: <span className="italic">{source.work}</span>
+                  {source.section ? ` ${source.section}` : ''}
+                </p>
+                <p className="mt-1 text-[11px] text-slate-300">
+                  {source.workDescription}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Mobile "Source details" toggle - only for non-miracles */}
+          {!isMiracle && (
             <button
               type="button"
-              className="text-[10px] font-semibold rounded-full bg-slate-700/80 px-3 py-1 uppercase tracking-[0.18em] text-slate-200"
+              onClick={() => setShowMobileDetails((prev) => !prev)}
+              className="md:hidden text-[10px] font-semibold rounded-full bg-slate-700/80 px-3 py-1 uppercase tracking-[0.18em] text-slate-200"
             >
-              {source.author.split(' ')[0]} • Info
+              {showMobileDetails ? 'Hide details' : 'Source details'}
             </button>
-
-            <div className="pointer-events-none absolute right-0 z-20 mt-2 hidden w-72 rounded-2xl bg-slate-900/95 p-4 text-left shadow-2xl ring-1 ring-slate-700 group-hover:block">
-              <p className="text-xs font-semibold text-slate-100">
-                {source.author}
-                {source.authorLifespan ? ` (${source.authorLifespan})` : ''}
-              </p>
-              <p className="mt-1 text-[11px] text-slate-300">
-                {source.authorDescription}
-              </p>
-              <p className="mt-2 text-[11px] font-semibold text-slate-200">
-                Work: <span className="italic">{source.work}</span>
-                {source.section ? ` ${source.section}` : ''}
-              </p>
-              <p className="mt-1 text-[11px] text-slate-300">
-                {source.workDescription}
-              </p>
-            </div>
-          </div>
-
-          {/* Mobile "Source details" toggle */}
-          <button
-            type="button"
-            onClick={() => setShowMobileDetails((prev) => !prev)}
-            className="md:hidden text-[10px] font-semibold rounded-full bg-slate-700/80 px-3 py-1 uppercase tracking-[0.18em] text-slate-200"
-          >
-            {showMobileDetails ? 'Hide details' : 'Source details'}
-          </button>
+          )}
         </div>
 
-        {/* Mobile details block */}
-        {showMobileDetails && (
+        {/* Mobile details block - only for non-miracles */}
+        {!isMiracle && showMobileDetails && (
           <div className="mt-3 rounded-2xl bg-slate-900/80 p-3 text-left md:hidden">
             <p className="text-xs font-semibold text-slate-100">
               {source.author}
@@ -193,12 +199,19 @@ export default function Home() {
 
         {/* Main source content */}
         <h2 className="mt-2 text-sm font-semibold text-slate-100">
-          {source.author},{' '}
-          <span className="italic">{source.work}</span>
-          {source.section ? ` ${source.section}` : null}
+          {isMiracle && source.title ? (
+            source.title
+          ) : (
+            <>
+              {source.author},{' '}
+              <span className="italic">{source.work}</span>
+              {source.section ? ` ${source.section}` : null}
+            </>
+          )}
         </h2>
 
-        <p className="mt-1 text-xs text-slate-400">{source.date}</p>
+        {/* Date - only for non-miracles */}
+        {!isMiracle && <p className="mt-1 text-xs text-slate-400">{source.date}</p>}
 
         {/* Quote */}
         <p className="mt-3 text-sm text-slate-100">

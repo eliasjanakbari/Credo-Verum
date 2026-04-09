@@ -21,6 +21,7 @@ function groupSQLResults(rows: any[]): EvidenceSource[] {
 
       evidenceMap.set(row.EvidenceID, {
         id: row.EvidenceID,
+        title: row.EvidenceTitle || undefined,
         category: row.Category as MiracleCategoryType,
         author: row.AuthorName || 'Unknown',
         authorLifespan: row.AuthorLifespan || undefined,
