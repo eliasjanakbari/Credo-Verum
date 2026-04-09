@@ -131,7 +131,7 @@ export default function Home() {
       <div key={source.id} className="rounded-3xl border border-slate-700 bg-slate-800/90 px-5 py-4 shadow-lg transition-all duration-300 ease-out">
         <div className="flex items-center justify-between gap-2">
           <div className="text-xs font-semibold tracking-[0.18em] uppercase text-slate-400">
-            {categoryIndex === 0 ? `Featured ${categoryLabel} Source` : `${categoryLabel} Source`}
+            {categoryLabel} Source
           </div>
 
           {/* Desktop hover tooltip */}
