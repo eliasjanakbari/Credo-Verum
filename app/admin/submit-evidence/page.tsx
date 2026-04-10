@@ -48,6 +48,7 @@ function SubmitEvidenceContent() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadingHighlightImage, setUploadingHighlightImage] = useState(false);
   const [savingDraft, setSavingDraft] = useState(false);
   const [lastSaved, setLastSaved] = useState<string | null>(null);
   const [draftId, setDraftId] = useState<number | null>(urlDraftId ? parseInt(urlDraftId) : null);
@@ -90,6 +91,8 @@ function SubmitEvidenceContent() {
     newManuscriptDate: '',
     newManuscriptDigitisedURL: '',
     newManuscriptImageURL: '',
+    newManuscriptHighlightImageURL: '',
+    newManuscriptFolioGuide: '',
 
     // Tags
     selectedTags: [] as number[],
@@ -264,6 +267,8 @@ function SubmitEvidenceContent() {
       newManuscriptDate: '',
       newManuscriptDigitisedURL: '',
       newManuscriptImageURL: '',
+      newManuscriptHighlightImageURL: '',
+      newManuscriptFolioGuide: '',
       selectedTags: [],
     });
   };
@@ -343,6 +348,8 @@ function SubmitEvidenceContent() {
           newManuscriptDate: '',
           newManuscriptDigitisedURL: '',
           newManuscriptImageURL: '',
+          newManuscriptHighlightImageURL: '',
+          newManuscriptFolioGuide: '',
           selectedTags: [],
         });
         router.push('/admin');
@@ -396,6 +403,39 @@ function SubmitEvidenceContent() {
       alert('Error uploading image. Please try again.');
     } finally {
       setUploadingImage(false);
+    }
+  };
+
+  const handleHighlightImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingHighlightImage(true);
+
+    try {
+      const formDataUpload = new FormData();
+      formDataUpload.append('file', file);
+
+      const response = await fetch('/api/admin/upload-image', {
+        method: 'POST',
+        body: formDataUpload,
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setFormData(prev => ({
+          ...prev,
+          newManuscriptHighlightImageURL: result.url,
+        }));
+      } else {
+        alert(`Error uploading image: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      alert('Error uploading highlight image. Please try again.');
+    } finally {
+      setUploadingHighlightImage(false);
     }
   };
 
@@ -836,7 +876,9 @@ function SubmitEvidenceContent() {
                     />
                   </div>
 
-                  <div>
+                  <div className="space-y-3 p-4 border border-slate-200 rounded-lg">
+                    <h3 className="font-semibold text-slate-700">Full Manuscript Image</h3>
+                    <p className="text-xs text-slate-500">The standard view showing the whole folio or page.</p>
                     <label className="block text-sm font-medium mb-2">
                       Manuscript Image
                     </label>
@@ -862,6 +904,52 @@ function SubmitEvidenceContent() {
                         </div>
                       )}
                     </div>
+                  </div>
+
+                  <div className="space-y-3 p-4 border border-purple-200 rounded-lg bg-purple-50">
+                    <h3 className="font-semibold text-purple-800">Highlight Focus Image</h3>
+                    <p className="text-xs text-purple-600">A version with the rest of the manuscript darkened/greyed out and the relevant text highlighted, so users can focus on the passage.</p>
+                    <label className="block text-sm font-medium mb-2">
+                      Highlight Focus Image
+                    </label>
+                    <div className="space-y-2">
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/gif,image/webp"
+                        onChange={handleHighlightImageUpload}
+                        className="w-full px-3 py-2 border border-slate-300 rounded-md"
+                        disabled={uploadingHighlightImage}
+                      />
+                      {uploadingHighlightImage && (
+                        <p className="text-sm text-slate-500">Uploading highlight image...</p>
+                      )}
+                      {formData.newManuscriptHighlightImageURL && (
+                        <div className="mt-2">
+                          <p className="text-sm text-green-600 mb-2">Highlight image uploaded successfully!</p>
+                          <img
+                            src={formData.newManuscriptHighlightImageURL}
+                            alt="Uploaded highlight manuscript"
+                            className="max-w-xs max-h-48 rounded border border-purple-300"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      Folio Navigation Guide
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.newManuscriptFolioGuide}
+                      onChange={(e) => setFormData({ ...formData, newManuscriptFolioGuide: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-300 rounded-md"
+                      placeholder="e.g., Navigate to Carta 38r in the right-hand panel to find Annals 15.44"
+                    />
+                    <p className="text-xs text-slate-500 mt-1">
+                      Shown as a tooltip on the "View Digitised Manuscript" button to help users navigate to the correct folio.
+                    </p>
                   </div>
                 </>
               )}

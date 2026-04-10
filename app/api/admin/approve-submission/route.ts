@@ -187,9 +187,10 @@ export async function POST(request: Request) {
             .input('shelfmark', sql.NVarChar, submissionData.newManuscriptShelfmark)
             .input('date', sql.NVarChar, submissionData.newManuscriptDate || null)
             .input('digitisedURL', sql.NVarChar, submissionData.newManuscriptDigitisedURL || null)
+            .input('folioGuide', sql.NVarChar, submissionData.newManuscriptFolioGuide || null)
             .query(`
-              INSERT INTO dbo.Manuscript (ManuscriptID, Title, Library, Shelfmark, Date, DigitisedURL, createdAt, updatedAt)
-              VALUES (@manuscriptId, @title, @library, @shelfmark, @date, @digitisedURL, GETDATE(), GETDATE());
+              INSERT INTO dbo.Manuscript (ManuscriptID, Title, Library, Shelfmark, Date, DigitisedURL, FolioGuide, createdAt, updatedAt)
+              VALUES (@manuscriptId, @title, @library, @shelfmark, @date, @digitisedURL, @folioGuide, GETDATE(), GETDATE());
             `);
           manuscriptId = newManuscriptId;
         }
@@ -203,9 +204,10 @@ export async function POST(request: Request) {
             .input('evidencePassageId', sql.NVarChar(50), evidencePassageId)
             .input('manuscriptId', sql.NVarChar(50), manuscriptId)
             .input('imageURL', sql.NVarChar, submissionData.newManuscriptImageURL || null)
+            .input('highlightImageURL', sql.NVarChar, submissionData.newManuscriptHighlightImageURL || null)
             .query(`
-              INSERT INTO dbo.ManuscriptWitness (WitnessID, EvidencePassageID, ManuscriptID, ImageURL)
-              VALUES (@witnessId, @evidencePassageId, @manuscriptId, @imageURL);
+              INSERT INTO dbo.ManuscriptWitness (WitnessID, EvidencePassageID, ManuscriptID, ImageURL, HighlightImageURL)
+              VALUES (@witnessId, @evidencePassageId, @manuscriptId, @imageURL, @highlightImageURL);
             `);
         }
 
