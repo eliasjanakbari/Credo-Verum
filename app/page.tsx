@@ -798,40 +798,42 @@ export default function Home() {
               {/* Evidence Section */}
               {showMiracleEvidence && john1411Evidence.manuscripts && john1411Evidence.manuscripts.length > 0 && (
                 <div className="mt-6 rounded-2xl border border-slate-300 bg-slate-50 p-4">
+                  {/* Language toggle button row */}
+                  <div className="flex justify-center mb-4">
+                    <button
+                      type="button"
+                      onClick={() => setShowOriginalGreek(!showOriginalGreek)}
+                      className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-700/60 hover:bg-slate-700 text-sm font-semibold text-slate-200 transition-colors cursor-pointer"
+                    >
+                      <span className="text-lg">{showOriginalGreek ? '🇬🇧' : '🇬🇷'}</span>
+                      {showOriginalGreek ? 'View English' : `View Original (${getLanguageInfo(john1411Evidence.language).name})`}
+                    </button>
+                  </div>
+
                   <div className="flex items-center justify-between mb-3">
                     <p className="text-xs font-semibold tracking-[0.18em] uppercase text-slate-600">
                       Manuscript Witness
                     </p>
-                    <div className="flex items-center gap-2">
-                      {(() => {
-                        const manuscript = john1411Evidence.manuscripts[0];
-                        const hasHighlight = !!manuscript.highlightImageUrl;
-                        const isHighlightActive = highlightViewActive[john1411Evidence.id] ?? false;
+                    {(() => {
+                      const manuscript = john1411Evidence.manuscripts[0];
+                      const hasHighlight = !!manuscript.highlightImageUrl;
+                      const isHighlightActive = highlightViewActive[john1411Evidence.id] ?? false;
 
-                        return hasHighlight ? (
-                          <button
-                            type="button"
-                            onClick={() => setHighlightViewActive(prev => ({ ...prev, [john1411Evidence.id]: !prev[john1411Evidence.id] }))}
-                            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold transition-colors cursor-pointer ${
-                              isHighlightActive
-                                ? 'bg-amber-400/20 border border-amber-400/60 text-amber-700 hover:bg-amber-400/30'
-                                : 'bg-slate-200 border border-slate-300 text-slate-600 hover:bg-slate-300'
-                            }`}
-                          >
-                            <span>{isHighlightActive ? '◉' : '○'}</span>
-                            {isHighlightActive ? 'Focus View' : 'Full View'}
-                          </button>
-                        ) : null;
-                      })()}
-                      <button
-                        type="button"
-                        onClick={() => setShowOriginalGreek(!showOriginalGreek)}
-                        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-700/60 hover:bg-slate-700 text-sm font-semibold text-slate-200 transition-colors cursor-pointer"
-                      >
-                        <span className="text-lg">{showOriginalGreek ? '🇬🇧' : '🇬🇷'}</span>
-                        {showOriginalGreek ? 'View English' : `View Original (${getLanguageInfo(john1411Evidence.language).name})`}
-                      </button>
-                    </div>
+                      return hasHighlight ? (
+                        <button
+                          type="button"
+                          onClick={() => setHighlightViewActive(prev => ({ ...prev, [john1411Evidence.id]: !prev[john1411Evidence.id] }))}
+                          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold transition-colors cursor-pointer ${
+                            isHighlightActive
+                              ? 'bg-amber-400/20 border border-amber-400/60 text-amber-700 hover:bg-amber-400/30'
+                              : 'bg-slate-200 border border-slate-300 text-slate-600 hover:bg-slate-300'
+                          }`}
+                        >
+                          <span>{isHighlightActive ? '◉' : '○'}</span>
+                          {isHighlightActive ? 'Focus View' : 'Full View'}
+                        </button>
+                      ) : null;
+                    })()}
                   </div>
 
                   {(() => {
