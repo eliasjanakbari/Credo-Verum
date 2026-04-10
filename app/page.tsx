@@ -750,11 +750,12 @@ export default function Home() {
                 {romanSources.map((source, idx) => renderSourceCard(source, idx, 'Roman'))}
 
                 {/* More sources coming card */}
-                <div className="rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50/50 p-6 text-center">
-                  <svg className="h-10 w-10 mx-auto mb-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                <div className="rounded-3xl border border-slate-700 bg-slate-800/90 px-5 py-4 shadow-lg transition-all duration-300 ease-out text-center">
+                  <svg className="h-10 w-10 mx-auto mb-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <path stroke="currentColor" strokeLinejoin="round" strokeWidth="2" d="m20.9532 11.7634-2.0523-2.05225-2.0523 2.05225 2.0523 2.0523 2.0523-2.0523Zm-1.3681-2.73651-4.1046-4.10457L12.06 8.3428l4.1046 4.1046 3.4205-3.42051Zm-4.1047 2.73651-2.7363-2.73638-8.20919 8.20918 2.73639 2.7364 8.2091-8.2092Z"/>
+                    <path stroke="currentColor" strokeLinejoin="round" strokeWidth="2" d="m12.9306 3.74083 1.8658 1.86571-2.0523 2.05229-1.5548-1.55476c-.995-.99505-3.23389-.49753-3.91799.18657l2.73639-2.73639c.6841-.68409 1.9901-.74628 2.9229.18658Z"/>
                   </svg>
-                  <p className="text-sm font-semibold text-slate-600">More sources to be added</p>
+                  <p className="text-sm font-semibold text-white">More sources to be added</p>
                 </div>
               </div>
             )}
@@ -765,11 +766,12 @@ export default function Home() {
                 {jewishSources.map((source, idx) => renderSourceCard(source, idx, 'Jewish'))}
 
                 {/* More sources coming card */}
-                <div className="rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50/50 p-6 text-center">
-                  <svg className="h-10 w-10 mx-auto mb-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                <div className="rounded-3xl border border-slate-700 bg-slate-800/90 px-5 py-4 shadow-lg transition-all duration-300 ease-out text-center">
+                  <svg className="h-10 w-10 mx-auto mb-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <path stroke="currentColor" strokeLinejoin="round" strokeWidth="2" d="m20.9532 11.7634-2.0523-2.05225-2.0523 2.05225 2.0523 2.0523 2.0523-2.0523Zm-1.3681-2.73651-4.1046-4.10457L12.06 8.3428l4.1046 4.1046 3.4205-3.42051Zm-4.1047 2.73651-2.7363-2.73638-8.20919 8.20918 2.73639 2.7364 8.2091-8.2092Z"/>
+                    <path stroke="currentColor" strokeLinejoin="round" strokeWidth="2" d="m12.9306 3.74083 1.8658 1.86571-2.0523 2.05229-1.5548-1.55476c-.995-.99505-3.23389-.49753-3.91799.18657l2.73639-2.73639c.6841-.68409 1.9901-.74628 2.9229.18658Z"/>
                   </svg>
-                  <p className="text-sm font-semibold text-slate-600">More sources to be added</p>
+                  <p className="text-sm font-semibold text-white">More sources to be added</p>
                 </div>
               </div>
             )}
@@ -780,11 +782,12 @@ export default function Home() {
                 {christianSources.map((source, idx) => renderSourceCard(source, idx, 'Christian'))}
 
                 {/* More sources coming card */}
-                <div className="rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50/50 p-6 text-center">
-                  <svg className="h-10 w-10 mx-auto mb-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                <div className="rounded-3xl border border-slate-700 bg-slate-800/90 px-5 py-4 shadow-lg transition-all duration-300 ease-out text-center">
+                  <svg className="h-10 w-10 mx-auto mb-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <path stroke="currentColor" strokeLinejoin="round" strokeWidth="2" d="m20.9532 11.7634-2.0523-2.05225-2.0523 2.05225 2.0523 2.0523 2.0523-2.0523Zm-1.3681-2.73651-4.1046-4.10457L12.06 8.3428l4.1046 4.1046 3.4205-3.42051Zm-4.1047 2.73651-2.7363-2.73638-8.20919 8.20918 2.73639 2.7364 8.2091-8.2092Z"/>
+                    <path stroke="currentColor" strokeLinejoin="round" strokeWidth="2" d="m12.9306 3.74083 1.8658 1.86571-2.0523 2.05229-1.5548-1.55476c-.995-.99505-3.23389-.49753-3.91799.18657l2.73639-2.73639c.6841-.68409 1.9901-.74628 2.9229.18658Z"/>
                   </svg>
-                  <p className="text-sm font-semibold text-slate-600">More sources to be added</p>
+                  <p className="text-sm font-semibold text-white">More sources to be added</p>
                 </div>
               </div>
             )}
