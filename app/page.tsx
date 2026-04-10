@@ -740,7 +740,7 @@ export default function Home() {
                   Christian Sources
                 </span>
                 <span className="mt-3 text-3xl font-extrabold text-white">
-                  {christianCount}
+                  {christianCount === 0 ? 'TBD' : christianCount}
                 </span>
               </button>
             </div>
