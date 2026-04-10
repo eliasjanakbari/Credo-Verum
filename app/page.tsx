@@ -781,7 +781,7 @@ export default function Home() {
               <button
                 type="button"
                 onClick={() => setShowMiracleEvidence(!showMiracleEvidence)}
-                className="text-slate-600 hover:text-slate-900 transition-colors"
+                className="text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
                 aria-label="Show manuscript evidence"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -800,10 +800,10 @@ export default function Home() {
                   <button
                     type="button"
                     onClick={() => setShowOriginalGreek(!showOriginalGreek)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-200 hover:bg-slate-300 text-xs font-semibold text-slate-700 transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-700/60 hover:bg-slate-700 text-sm font-semibold text-slate-200 transition-colors cursor-pointer"
                   >
-                    <span className="text-sm">{showOriginalGreek ? '🇬🇧' : '🇬🇷'}</span>
-                    {showOriginalGreek ? 'English' : 'Greek'}
+                    <span className="text-lg">{showOriginalGreek ? '🇬🇧' : '🇬🇷'}</span>
+                    {showOriginalGreek ? 'View English' : 'View Original (Greek)'}
                   </button>
                 </div>
 
