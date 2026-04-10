@@ -123,7 +123,7 @@ export default function ArticlePage() {
                 <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight mb-2">
                   Explore the Evidence for Jesus
                 </h2>
-                <p className="text-sm md:text-base text-slate-700 max-w-xl mb-4">
+                <p className="text-sm md:text-base text-slate-900 max-w-xl mb-4">
                   Discover ancient manuscripts, historical sources, and Gospel accounts that document the life, miracles, and divinity of Jesus Christ.
                 </p>
                 <span className="inline-flex items-center gap-2 rounded-full bg-white/90 px-6 py-2 text-sm md:text-base font-semibold shadow-md">

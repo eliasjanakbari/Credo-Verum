@@ -748,6 +748,14 @@ export default function Home() {
             {activeCategory === 'Roman' && romanSources.length > 0 && (
               <div className="mt-5 space-y-4">
                 {romanSources.map((source, idx) => renderSourceCard(source, idx, 'Roman'))}
+
+                {/* More sources coming card */}
+                <div className="rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50/50 p-6 text-center">
+                  <svg className="h-10 w-10 mx-auto mb-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                  </svg>
+                  <p className="text-sm font-semibold text-slate-600">More sources to be added</p>
+                </div>
               </div>
             )}
 
@@ -755,6 +763,14 @@ export default function Home() {
             {activeCategory === 'Jewish' && jewishSources.length > 0 && (
               <div className="mt-5 space-y-4">
                 {jewishSources.map((source, idx) => renderSourceCard(source, idx, 'Jewish'))}
+
+                {/* More sources coming card */}
+                <div className="rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50/50 p-6 text-center">
+                  <svg className="h-10 w-10 mx-auto mb-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                  </svg>
+                  <p className="text-sm font-semibold text-slate-600">More sources to be added</p>
+                </div>
               </div>
             )}
 
@@ -762,6 +778,14 @@ export default function Home() {
             {activeCategory === 'Christian' && christianSources.length > 0 && (
               <div className="mt-5 space-y-4">
                 {christianSources.map((source, idx) => renderSourceCard(source, idx, 'Christian'))}
+
+                {/* More sources coming card */}
+                <div className="rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50/50 p-6 text-center">
+                  <svg className="h-10 w-10 mx-auto mb-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                  </svg>
+                  <p className="text-sm font-semibold text-slate-600">More sources to be added</p>
+                </div>
               </div>
             )}
           </div>
