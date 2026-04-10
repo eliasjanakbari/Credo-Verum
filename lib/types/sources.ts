@@ -51,7 +51,7 @@ export interface EvidencePassage {
 export interface EvidenceSource {
   id: string;
   title?: string;
-  category: CategoryType;
+  category: string;
   author: string;
   authorLifespan?: string;
   authorDescription: string;

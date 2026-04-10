@@ -2,10 +2,9 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
-import type { EvidenceSource, CategoryType } from '@/lib/types/sources';
+import type { EvidenceSource } from '@/lib/types/sources';
 
-// Category configuration for consistent styling
-const categoryConfig: Record<CategoryType, { bg: string; text: string }> = {
+const KNOWN_CATEGORY_STYLES: Record<string, { bg: string; text: string }> = {
   Roman: { bg: 'bg-red-100', text: 'text-red-700' },
   Jewish: { bg: 'bg-blue-100', text: 'text-blue-700' },
   Christian: { bg: 'bg-green-100', text: 'text-green-700' },
@@ -14,6 +13,22 @@ const categoryConfig: Record<CategoryType, { bg: string; text: string }> = {
   Resurrection: { bg: 'bg-amber-100', text: 'text-amber-700' },
   Demons: { bg: 'bg-slate-100', text: 'text-slate-700' },
 };
+
+const CATEGORY_PALETTE = [
+  { bg: 'bg-orange-100', text: 'text-orange-700' },
+  { bg: 'bg-teal-100', text: 'text-teal-700' },
+  { bg: 'bg-pink-100', text: 'text-pink-700' },
+  { bg: 'bg-indigo-100', text: 'text-indigo-700' },
+  { bg: 'bg-yellow-100', text: 'text-yellow-700' },
+  { bg: 'bg-cyan-100', text: 'text-cyan-700' },
+  { bg: 'bg-rose-100', text: 'text-rose-700' },
+];
+
+function getCategoryStyle(category: string) {
+  if (KNOWN_CATEGORY_STYLES[category]) return KNOWN_CATEGORY_STYLES[category];
+  const hash = category.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+  return CATEGORY_PALETTE[hash % CATEGORY_PALETTE.length];
+}
 
 export default function DatabasePage() {
   const [sources, setSources] = useState<EvidenceSource[]>([]);
@@ -150,7 +165,11 @@ export default function DatabasePage() {
 
       {/* Table */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {filteredAndSortedSources.length === 0 ? (
+        {loading ? (
+          <div className="text-center py-12">
+            <p className="text-slate-600">Loading...</p>
+          </div>
+        ) : filteredAndSortedSources.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-slate-600">No sources match your filters.</p>
           </div>
@@ -190,9 +209,7 @@ export default function DatabasePage() {
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
                       <span
-                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                          categoryConfig[source.category]?.bg ?? 'bg-gray-100'
-                        } ${categoryConfig[source.category]?.text ?? 'text-gray-700'}`}
+                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${getCategoryStyle(source.category).bg} ${getCategoryStyle(source.category).text}`}
                       >
                         {source.category}
                       </span>
