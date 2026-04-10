@@ -8,6 +8,7 @@ export default function Home() {
   // Data state
   const [sources, setSources] = useState<EvidenceSource[]>([]);
   const [miracles, setMiracles] = useState<EvidenceSource[]>([]);
+  const [john1411Evidence, setJohn1411Evidence] = useState<EvidenceSource | null>(null);
   const [loading, setLoading] = useState(true);
 
   const [isOpen, setIsOpen] = useState(false);
@@ -52,16 +53,19 @@ export default function Home() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const [sourcesRes, miraclesRes] = await Promise.all([
+        const [sourcesRes, miraclesRes, john1411Res] = await Promise.all([
           fetch('/api/sources'),
-          fetch('/api/miracles')
+          fetch('/api/miracles'),
+          fetch('/api/sources/0w1tqa4ipk9p53ewgpsh0x2')
         ]);
 
         const sourcesData = await sourcesRes.json();
         const miraclesData = await miraclesRes.json();
+        const john1411Data = await john1411Res.json();
 
         setSources(sourcesData);
         setMiracles(miraclesData);
+        setJohn1411Evidence(john1411Data);
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -768,76 +772,90 @@ export default function Home() {
       <div className={`flex items-center justify-center min-h-[40vh] mt-4 mb-8 ${activeStep !== 1 ? 'hidden' : ''}`}>
         <div className="w-full max-w-3xl flex flex-col items-center">
           {/* Scripture Quote */}
-          <div className="w-full max-w-xl mb-6">
-            <blockquote className="text-center text-sm sm:text-base text-slate-900 italic leading-relaxed">
-              {showOriginalGreek
-                ? "Πιστεύετέ μοι ὅτι ἐγὼ ἐν τῷ πατρὶ καὶ ὁ πατὴρ ἐν ἐμοί· εἰ δὲ μή, διὰ τὰ ἔργα αὐτὰ πιστεύετέ μοι."
-                : '"Believe me when I say that I am in the Father and the Father is in me; or at least believe on the evidence of the miracles themselves."'}
-            </blockquote>
-            <div className="mt-3 flex items-center justify-center gap-2">
-              <p className="text-center text-xs sm:text-sm text-slate-700 font-semibold">
-                — John 14:11
-              </p>
-              <button
-                type="button"
-                onClick={() => setShowMiracleEvidence(!showMiracleEvidence)}
-                className="text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
-                aria-label="Show manuscript evidence"
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </button>
-            </div>
-
-            {/* Evidence Section */}
-            {showMiracleEvidence && (
-              <div className="mt-6 rounded-2xl border border-slate-300 bg-slate-50 p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <p className="text-xs font-semibold tracking-[0.18em] uppercase text-slate-600">
-                    Manuscript Witness
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => setShowOriginalGreek(!showOriginalGreek)}
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-700/60 hover:bg-slate-700 text-sm font-semibold text-slate-200 transition-colors cursor-pointer"
-                  >
-                    <span className="text-lg">{showOriginalGreek ? '🇬🇧' : '🇬🇷'}</span>
-                    {showOriginalGreek ? 'View English' : 'View Original (Greek)'}
-                  </button>
-                </div>
-
+          {john1411Evidence && (
+            <div className="w-full max-w-xl mb-6">
+              <blockquote className="text-center text-sm sm:text-base text-slate-900 italic leading-relaxed">
+                {showOriginalGreek
+                  ? john1411Evidence.quoteOriginal
+                  : `"${john1411Evidence.quoteEnglish}"`}
+              </blockquote>
+              <div className="mt-3 flex items-center justify-center gap-2">
+                <p className="text-center text-xs sm:text-sm text-slate-700 font-semibold">
+                  — {john1411Evidence.section || 'John 14:11'}
+                </p>
                 <button
                   type="button"
-                  onClick={() => setFullscreenImage('/evidence/Vat.gr.1209_1375_pa_1371_m.jpg')}
-                  className="group block w-full text-left hover:opacity-90 transition-opacity"
+                  onClick={() => setShowMiracleEvidence(!showMiracleEvidence)}
+                  className="text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
+                  aria-label="Show manuscript evidence"
                 >
-                  <div className="overflow-hidden rounded-xl border border-slate-300 cursor-pointer">
-                    <img
-                      src="/evidence/Vat.gr.1209_1375_pa_1371_m.jpg"
-                      alt="John 14:11 manuscript from Vatican Library"
-                      className="w-full max-h-72 object-contain transition-transform duration-300 group-hover:scale-105"
-                    />
-                  </div>
-                  <p className="mt-2 text-xs text-slate-600 text-center">
-                    Codex Vaticanus Graecus 1209, page 1371, Vatican Library (4th century) – click to view full folio
-                  </p>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
                 </button>
-
-                <div className="mt-3 flex justify-center">
-                  <a
-                    href="https://digi.vatlib.it/view/MSS_Vat.gr.1209"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 text-sm font-semibold text-amber-800 transition-colors"
-                  >
-                    <span>📜</span>
-                    View Digitized Manuscript
-                  </a>
-                </div>
               </div>
-            )}
-          </div>
+
+              {/* Evidence Section */}
+              {showMiracleEvidence && john1411Evidence.manuscripts && john1411Evidence.manuscripts.length > 0 && (
+                <div className="mt-6 rounded-2xl border border-slate-300 bg-slate-50 p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-xs font-semibold tracking-[0.18em] uppercase text-slate-600">
+                      Manuscript Witness
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setShowOriginalGreek(!showOriginalGreek)}
+                      className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-700/60 hover:bg-slate-700 text-sm font-semibold text-slate-200 transition-colors cursor-pointer"
+                    >
+                      <span className="text-lg">{showOriginalGreek ? '🇬🇧' : '🇬🇷'}</span>
+                      {showOriginalGreek ? 'View English' : `View Original (${getLanguageInfo(john1411Evidence.language).name})`}
+                    </button>
+                  </div>
+
+                  {(() => {
+                    const manuscript = john1411Evidence.manuscripts[0];
+                    const imageFromLink = john1411Evidence.links.find((l) => l.type === 'image')?.url;
+                    const fullImage = manuscript?.imageUrl ?? imageFromLink ?? manuscript?.digitizedUrl;
+
+                    return fullImage ? (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => setFullscreenImage(fullImage)}
+                          className="group block w-full text-left hover:opacity-90 transition-opacity"
+                        >
+                          <div className="overflow-hidden rounded-xl border border-slate-300 cursor-pointer">
+                            <img
+                              src={fullImage}
+                              alt={`${john1411Evidence.section} manuscript from ${manuscript.library}`}
+                              className="w-full max-h-72 object-contain transition-transform duration-300 group-hover:scale-105"
+                            />
+                          </div>
+                          <p className="mt-2 text-xs text-slate-600 text-center">
+                            {manuscript.shelfmark}, {manuscript.library} ({manuscript.date}) – click to view full folio
+                          </p>
+                        </button>
+
+                        {manuscript.digitizedUrl && (
+                          <div className="mt-3 flex justify-center">
+                            <a
+                              href={manuscript.digitizedUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 text-sm font-semibold text-amber-800 transition-colors"
+                            >
+                              <span>📜</span>
+                              View Digitized Manuscript
+                            </a>
+                          </div>
+                        )}
+                      </>
+                    ) : null;
+                  })()}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Main CTA card */}
           <button
