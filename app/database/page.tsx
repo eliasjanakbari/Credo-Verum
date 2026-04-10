@@ -191,8 +191,8 @@ export default function DatabasePage() {
                     <td className="px-4 py-4 whitespace-nowrap">
                       <span
                         className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                          categoryConfig[source.category].bg
-                        } ${categoryConfig[source.category].text}`}
+                          categoryConfig[source.category]?.bg ?? 'bg-gray-100'
+                        } ${categoryConfig[source.category]?.text ?? 'text-gray-700'}`}
                       >
                         {source.category}
                       </span>
