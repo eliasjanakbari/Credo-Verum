@@ -774,37 +774,38 @@ export default function Home() {
                 ? "Πιστεύετέ μοι ὅτι ἐγὼ ἐν τῷ πατρὶ καὶ ὁ πατὴρ ἐν ἐμοί· εἰ δὲ μή, διὰ τὰ ἔργα αὐτὰ πιστεύετέ μοι."
                 : '"Believe me when I say that I am in the Father and the Father is in me; or at least believe on the evidence of the miracles themselves."'}
             </blockquote>
-            <p className="mt-3 text-center text-xs sm:text-sm text-slate-700 font-semibold">
-              — John 14:11
-            </p>
-
-            {/* Evidence and Language Toggle Buttons */}
-            <div className="mt-4 flex flex-wrap justify-center gap-3">
+            <div className="mt-3 flex items-center justify-center gap-2">
+              <p className="text-center text-xs sm:text-sm text-slate-700 font-semibold">
+                — John 14:11
+              </p>
               <button
                 type="button"
                 onClick={() => setShowMiracleEvidence(!showMiracleEvidence)}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#776b5d] hover:bg-[#5d5449] text-sm font-semibold text-white transition-colors"
+                className="text-slate-600 hover:text-slate-900 transition-colors"
+                aria-label="Show manuscript evidence"
               >
-                <span>📜</span>
-                {showMiracleEvidence ? 'Hide Evidence' : 'Show Evidence'}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setShowOriginalGreek(!showOriginalGreek)}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-600 hover:bg-slate-700 text-sm font-semibold text-white transition-colors"
-              >
-                <span>{showOriginalGreek ? '🇬🇧' : '🇬🇷'}</span>
-                {showOriginalGreek ? 'View English' : 'View Original Greek'}
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
               </button>
             </div>
 
             {/* Evidence Section */}
             {showMiracleEvidence && (
               <div className="mt-6 rounded-2xl border border-slate-300 bg-slate-50 p-4">
-                <p className="text-xs font-semibold tracking-[0.18em] uppercase text-slate-600 mb-3">
-                  Manuscript Witness
-                </p>
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-xs font-semibold tracking-[0.18em] uppercase text-slate-600">
+                    Manuscript Witness
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setShowOriginalGreek(!showOriginalGreek)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-200 hover:bg-slate-300 text-xs font-semibold text-slate-700 transition-colors"
+                  >
+                    <span className="text-sm">{showOriginalGreek ? '🇬🇧' : '🇬🇷'}</span>
+                    {showOriginalGreek ? 'English' : 'Greek'}
+                  </button>
+                </div>
 
                 <button
                   type="button"
