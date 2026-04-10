@@ -775,9 +775,9 @@ export default function Home() {
           {john1411Evidence && (
             <div className="w-full max-w-xl mb-6">
               <blockquote className="text-center text-sm sm:text-base text-slate-900 italic leading-relaxed">
-                {showOriginalGreek
+                "{showOriginalGreek
                   ? john1411Evidence.quoteOriginal
-                  : `"${john1411Evidence.quoteEnglish}"`}
+                  : john1411Evidence.quoteEnglish}"
               </blockquote>
               <div className="mt-3 flex items-center justify-center gap-2">
                 <p className="text-center text-xs sm:text-sm text-slate-700 font-semibold">
@@ -802,32 +802,56 @@ export default function Home() {
                     <p className="text-xs font-semibold tracking-[0.18em] uppercase text-slate-600">
                       Manuscript Witness
                     </p>
-                    <button
-                      type="button"
-                      onClick={() => setShowOriginalGreek(!showOriginalGreek)}
-                      className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-700/60 hover:bg-slate-700 text-sm font-semibold text-slate-200 transition-colors cursor-pointer"
-                    >
-                      <span className="text-lg">{showOriginalGreek ? '🇬🇧' : '🇬🇷'}</span>
-                      {showOriginalGreek ? 'View English' : `View Original (${getLanguageInfo(john1411Evidence.language).name})`}
-                    </button>
+                    <div className="flex items-center gap-2">
+                      {(() => {
+                        const manuscript = john1411Evidence.manuscripts[0];
+                        const hasHighlight = !!manuscript.highlightImageUrl;
+                        const isHighlightActive = highlightViewActive[john1411Evidence.id] ?? false;
+
+                        return hasHighlight ? (
+                          <button
+                            type="button"
+                            onClick={() => setHighlightViewActive(prev => ({ ...prev, [john1411Evidence.id]: !prev[john1411Evidence.id] }))}
+                            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold transition-colors cursor-pointer ${
+                              isHighlightActive
+                                ? 'bg-amber-400/20 border border-amber-400/60 text-amber-700 hover:bg-amber-400/30'
+                                : 'bg-slate-200 border border-slate-300 text-slate-600 hover:bg-slate-300'
+                            }`}
+                          >
+                            <span>{isHighlightActive ? '◉' : '○'}</span>
+                            {isHighlightActive ? 'Focus View' : 'Full View'}
+                          </button>
+                        ) : null;
+                      })()}
+                      <button
+                        type="button"
+                        onClick={() => setShowOriginalGreek(!showOriginalGreek)}
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-700/60 hover:bg-slate-700 text-sm font-semibold text-slate-200 transition-colors cursor-pointer"
+                      >
+                        <span className="text-lg">{showOriginalGreek ? '🇬🇧' : '🇬🇷'}</span>
+                        {showOriginalGreek ? 'View English' : `View Original (${getLanguageInfo(john1411Evidence.language).name})`}
+                      </button>
+                    </div>
                   </div>
 
                   {(() => {
                     const manuscript = john1411Evidence.manuscripts[0];
                     const imageFromLink = john1411Evidence.links.find((l) => l.type === 'image')?.url;
                     const fullImage = manuscript?.imageUrl ?? imageFromLink ?? manuscript?.digitizedUrl;
+                    const isHighlightActive = highlightViewActive[john1411Evidence.id] ?? false;
+                    const displayImage = isHighlightActive && manuscript.highlightImageUrl ? manuscript.highlightImageUrl : fullImage;
 
-                    return fullImage ? (
+                    return displayImage ? (
                       <>
                         <button
                           type="button"
-                          onClick={() => setFullscreenImage(fullImage)}
+                          onClick={() => setFullscreenImage(displayImage)}
                           className="group block w-full text-left hover:opacity-90 transition-opacity"
                         >
                           <div className="overflow-hidden rounded-xl border border-slate-300 cursor-pointer">
                             <img
-                              src={fullImage}
-                              alt={`${john1411Evidence.section} manuscript from ${manuscript.library}`}
+                              src={displayImage}
+                              alt={`${john1411Evidence.section} manuscript ${isHighlightActive ? 'highlight' : 'from'} ${manuscript.library}`}
                               className="w-full max-h-72 object-contain transition-transform duration-300 group-hover:scale-105"
                             />
                           </div>
@@ -836,19 +860,59 @@ export default function Home() {
                           </p>
                         </button>
 
-                        {manuscript.digitizedUrl && (
-                          <div className="mt-3 flex justify-center">
-                            <a
-                              href={manuscript.digitizedUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 text-sm font-semibold text-amber-800 transition-colors"
-                            >
-                              <span>📜</span>
-                              View Digitized Manuscript
-                            </a>
-                          </div>
-                        )}
+                        <div className="mt-3 flex flex-wrap justify-center gap-3">
+                          {john1411Evidence.links
+                            .filter((link) => link.type === 'translation')
+                            .map((link) => (
+                              <a
+                                key={link.url}
+                                href={link.url}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-sky-500/20 hover:bg-sky-500/30 border border-sky-500/50 text-sm font-semibold text-sky-800 transition-colors"
+                              >
+                                <span>📖</span>
+                                Source to Text
+                              </a>
+                            ))}
+
+                          {manuscript.digitizedUrl && (
+                            <div className="relative flex items-center gap-1">
+                              <a
+                                href={manuscript.digitizedUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 text-sm font-semibold text-amber-800 transition-colors"
+                              >
+                                <span>📜</span>
+                                View Digitized Manuscript
+                              </a>
+                              {manuscript.folioGuide && (
+                                <div className="relative">
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setActiveFolioTooltip(activeFolioTooltip === john1411Evidence.id ? null : john1411Evidence.id);
+                                    }}
+                                    onMouseEnter={() => setActiveFolioTooltip(john1411Evidence.id)}
+                                    onMouseLeave={() => setActiveFolioTooltip(null)}
+                                    className="flex items-center justify-center w-5 h-5 rounded-full bg-amber-500/30 border border-amber-500/50 text-amber-700 text-xs font-bold hover:bg-amber-500/50 transition-colors cursor-pointer"
+                                    aria-label="Navigation guide"
+                                  >
+                                    i
+                                  </button>
+                                  {activeFolioTooltip === john1411Evidence.id && (
+                                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 rounded-lg bg-slate-900 border border-amber-500/40 px-3 py-2 text-xs text-slate-200 shadow-xl z-20 pointer-events-none">
+                                      {manuscript.folioGuide}
+                                      <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900" />
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
                       </>
                     ) : null;
                   })()}
