@@ -82,11 +82,9 @@ export default function Home() {
     const imageFromLink = source.links.find((l) => l.type === 'image')?.url;
     const fullImage = manuscript?.imageUrl ?? imageFromLink ?? manuscript?.digitizedUrl;
 
-    if (!manuscript || !fullImage) return null;
-
-    const hasHighlight = !!manuscript.highlightImageUrl;
+    const hasHighlight = !!manuscript?.highlightImageUrl;
     const isHighlightActive = highlightViewActive[source.id] ?? false;
-    const displayImage = isHighlightActive && manuscript.highlightImageUrl ? manuscript.highlightImageUrl : fullImage;
+    const displayImage = isHighlightActive && manuscript?.highlightImageUrl ? manuscript.highlightImageUrl : fullImage;
 
     return (
       <div className="mt-4 rounded-2xl border border-slate-700/80 bg-slate-900/60 p-3">
@@ -110,22 +108,28 @@ export default function Home() {
           )}
         </div>
 
-        <button
-          type="button"
-          onClick={() => setFullscreenImage(displayImage)}
-          className="group block w-full text-left hover:opacity-90 transition-opacity"
-        >
-          <div className="overflow-hidden rounded-xl border border-slate-700/80 cursor-pointer">
-            <img
-              src={displayImage}
-              alt={`${source.work} manuscript ${isHighlightActive ? 'highlight' : 'thumbnail'}`}
-              className="w-full max-h-72 object-cover md:object-contain transition-transform duration-300 group-hover:scale-105"
-            />
+        {displayImage ? (
+          <button
+            type="button"
+            onClick={() => setFullscreenImage(displayImage)}
+            className="group block w-full text-left hover:opacity-90 transition-opacity"
+          >
+            <div className="overflow-hidden rounded-xl border border-slate-700/80 cursor-pointer">
+              <img
+                src={displayImage}
+                alt={`${source.work} manuscript ${isHighlightActive ? 'highlight' : 'thumbnail'}`}
+                className="w-full max-h-72 object-cover md:object-contain transition-transform duration-300 group-hover:scale-105"
+              />
+            </div>
+            <p className="mt-2 text-[11px] text-slate-400 text-center">
+              {manuscript!.shelfmark}, {manuscript!.library} ({manuscript!.date}) – click to view full folio
+            </p>
+          </button>
+        ) : (
+          <div className="flex items-center justify-center rounded-xl border border-slate-700/60 h-[500px] bg-slate-800/30">
+            <p className="text-sm font-medium text-slate-500">To be added</p>
           </div>
-          <p className="mt-2 text-[11px] text-slate-400 text-center">
-            {manuscript.shelfmark}, {manuscript.library} ({manuscript.date}) – click to view full folio
-          </p>
-        </button>
+        )}
       </div>
     );
   };
