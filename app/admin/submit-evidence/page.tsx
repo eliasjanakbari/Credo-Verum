@@ -47,6 +47,7 @@ function SubmitEvidenceContent() {
   const [categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [tagsError, setTagsError] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadingHighlightImage, setUploadingHighlightImage] = useState(false);
   const [savingDraft, setSavingDraft] = useState(false);
@@ -304,6 +305,13 @@ function SubmitEvidenceContent() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (formData.selectedTags.length === 0) {
+      setTagsError(true);
+      document.getElementById('tags-section')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
     setSubmitting(true);
 
     try {
@@ -365,6 +373,7 @@ function SubmitEvidenceContent() {
   };
 
   const handleTagToggle = (tagId: number) => {
+    setTagsError(false);
     setFormData(prev => ({
       ...prev,
       selectedTags: prev.selectedTags.includes(tagId)
@@ -957,8 +966,15 @@ function SubmitEvidenceContent() {
           </div>
 
           {/* Tags Section */}
-          <div className="bg-slate-50 p-6 rounded-lg">
-            <h2 className="text-xl font-bold mb-4">Tags</h2>
+          <div id="tags-section" className={`p-6 rounded-lg ${tagsError ? 'bg-red-50 ring-2 ring-red-400' : 'bg-slate-50'}`}>
+            <h2 className="text-xl font-bold mb-1">
+              Tags <span className="text-red-500">*</span>
+            </h2>
+            <p className="text-sm text-slate-500 mb-4">At least one tag must be selected.</p>
+
+            {tagsError && (
+              <p className="text-sm font-medium text-red-600 mb-3">Please select at least one tag before submitting.</p>
+            )}
 
             <div className="flex flex-wrap gap-2">
               {tags.map((tag) => (
