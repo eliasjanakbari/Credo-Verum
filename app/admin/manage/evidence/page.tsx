@@ -28,7 +28,7 @@ interface Evidence {
   tags: Tag[];
 }
 
-const EVIDENCE_TYPES = ['Gospel Account', 'Miracle', 'Quote', 'Reference', 'Manuscript'];
+const EVIDENCE_TYPES = ['Existence', 'Gospel Account', 'Miracle', 'Quote', 'Reference', 'Manuscript'];
 const CATEGORIES = ['Roman', 'Jewish', 'Christian', 'Nature', 'Healing', 'Resurrection', 'Demons'];
 
 export default function ManageEvidence() {

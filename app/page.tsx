@@ -118,7 +118,7 @@ export default function Home() {
               <img
                 src={displayImage}
                 alt={`${source.work} manuscript ${isHighlightActive ? 'highlight' : 'thumbnail'}`}
-                className="w-full max-h-72 object-cover md:object-contain transition-transform duration-300 group-hover:scale-105"
+                className="w-full max-h-72 object-contain transition-transform duration-300 group-hover:scale-105"
               />
             </div>
             <p className="mt-2 text-[11px] text-slate-400 text-center">
@@ -126,7 +126,7 @@ export default function Home() {
             </p>
           </button>
         ) : (
-          <div className="flex items-center justify-center rounded-xl border border-slate-700/60 h-[500px] bg-slate-800/30">
+          <div className="flex items-center justify-center rounded-xl border border-slate-700/60 h-[300px] bg-slate-800/30">
             <p className="text-sm font-medium text-slate-500">To be added</p>
           </div>
         )}
